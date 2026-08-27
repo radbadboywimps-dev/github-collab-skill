@@ -178,10 +178,12 @@ fix: 修复CCTV m3u8地址解析失败的问题
 
 记录格式（极简，一句话即可）：
 ```
-## YYYY-MM-DD [标签]
-一句话记录发生了什么、为什么值得记。
+## YYYY-MM-DD [标签] 简述
+
+- 发生了什么（1-3句）
+- 为什么值得记（可选）
 ```
-标签：decision / problem / milestone / idea / pitfall
+标签：decision / problem / milestone / idea / pitfall / note
 
 不强制记录，用户说不用就跳过。DEVLOG.md 提交到 GitHub（属于项目文档）。
 如果 dev-journal skill 可用，记录后提示用户可以用它做更详细的整理或内容生成。
