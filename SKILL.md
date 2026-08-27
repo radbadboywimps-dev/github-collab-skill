@@ -116,6 +116,36 @@ fix: 修复CCTV m3u8地址解析失败的问题
 - 仓库默认私有，用户明确要求才公开
 - 破坏性操作（force push、删除分支、重置历史）必须说明后果并经用户确认
 
+## 故障降级与恢复
+
+### 本地 git push 网络失败
+当 `git push` 因网络问题失败（连接超时、连接重置、无法解析 host、443 端口不通）时：
+1. 确认是网络问题而非认证问题（检查报错信息含 `Connection was reset` / `Could not resolve host` / `Failed to connect` / `Recv failure`）
+2. 降级到 MCP `push_files` 批量上传本次改动的文件（不要逐文件 `create_or_update_file`）
+3. 上传后用 MCP `get_file_contents` 校验关键文件大小与本地一致
+4. 告知用户：本地 commit 仍在，网络恢复后需在项目目录执行 `git fetch origin && git reset --hard origin/main` 同步（本地未推送的 commit 会被远程版本替代，因内容一致无损失）
+
+### 认证失败
+当 git 操作返回 403/Authentication failed：
+1. 检查 credential helper：`git config --global credential.helper`
+   - Windows：应为 `manager`（Git Credential Manager）
+   - macOS：应为 `osxkeychain`
+   - Linux：应为 `libsecret` 或 `store`
+2. 未配置则设置对应 helper
+3. 引导用户完成认证：GCM 会弹出浏览器 OAuth 授权；无 GUI 环境用 Personal Access Token
+4. 认证完成后重试
+
+### Windows PowerShell 注意事项
+- git 的进度信息输出到 stderr，不代表命令失败
+- 判断成功要看输出内容（`-> main`、`up to date`、`[new branch]`）和 `$LASTEXITCODE -eq 0`
+- 不要因 stderr 有输出就判定失败
+
+### 本地与远程历史分叉
+当本地 commit 通过 MCP 推送到远程后（SHA 不同），本地 git 历史与远程分叉：
+- 不要 force push
+- 用 `git fetch origin && git reset --hard origin/main` 对齐远程
+- 如果本地有 MCP 未上传的 commit，先 `git format-patch` 备份再 reset，之后 `git am` 恢复
+
 ## 撤销与回退
 
 常见场景速查（完整说明见 [references/git-operations.md](references/git-operations.md)）：
