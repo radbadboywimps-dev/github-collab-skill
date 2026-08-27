@@ -1,6 +1,6 @@
 ---
 name: github-collab
-version: 1.3.1
+version: 1.4.0
 description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
@@ -104,7 +104,8 @@ fix: 修复CCTV m3u8地址解析失败的问题
 2. `git add` 暂存改动
 3. `git commit -m "规范的commit message"`
 4. `git push`
-5. 推送成功后简短报告
+5. 如果 AGENTS.md 中启用了自动打 tag，按"版本发布"章节自动递增 PATCH 打 tag
+6. 推送成功后简短报告
 
 ### 完整流程
 
@@ -127,7 +128,8 @@ fix: 修复CCTV m3u8地址解析失败的问题
 
 #### 推送与合并
 1. `git push -u origin <分支名>`
-2. 通过 MCP 创建 Pull Request
+2. 如果 AGENTS.md 中启用了自动打 tag，按"版本发布"章节自动递增 PATCH 打 tag
+3. 通过 MCP 创建 Pull Request
 3. PR 描述包含：改了什么、为什么、怎么验证的
 4. 合并前过一遍下方自查清单
 5. 合并后自动清理（不需要用户提醒）：
@@ -253,12 +255,32 @@ fix: 修复CCTV m3u8地址解析失败的问题
 
 ## 版本发布
 
-- 语义化版本：MAJOR.MINOR.PATCH（如 1.2.3）
-  - PATCH：bug 修复
-  - MINOR：新功能，向后兼容
-  - MAJOR：不兼容的重大变更
-- 打 tag：`git tag v1.2.3 && git push origin v1.2.3`
-- 通过 MCP 创建 GitHub Release，附 changelog（基于 commit 历史生成）
+### 语义化版本
+MAJOR.MINOR.PATCH（如 1.2.3）：
+- PATCH：bug 修复、小调整
+- MINOR：新功能，向后兼容
+- MAJOR：不兼容的重大变更
+
+### 自动打 tag（需用户启用）
+用户说过一次"以后自动打 tag"后，在 AGENTS.md 协作设置中记录 `自动打tag：是`。之后：
+- 每次 `git push` 成功后，自动取最新 tag 的 PATCH +1
+- `git tag -a vX.Y.Z+1 -m "auto: vX.Y.Z+1"` 并 `git push origin vX.Y.Z+1`
+- 只打 tag，不发 Release
+- 没有历史 tag 时，从 v0.1.0 开始
+- 用户说"关闭自动打 tag"则停止，并更新 AGENTS.md
+
+### 发 Release（用户明确要求时）
+用户说"发 release""发版"时执行：
+1. 基于最新 tag（没有则先按 PATCH 打 tag）
+2. 从 commit 历史生成 release notes（上次 tag 到现在的 commit）
+3. 用 gh CLI 创建 Release：`gh release create <tag> --title "<tag>" --notes "<notes>"`
+4. gh CLI 不可用时按 [references/gh-cli-setup.md](references/gh-cli-setup.md) 引导
+
+### 手动升版本
+用户说"升个 minor 版""升大版本"时：
+- MINOR：PATCH 归零，MINOR +1（如 1.3.1 → 1.4.0），打 tag
+- MAJOR：MINOR 和 PATCH 归零，MAJOR +1（如 1.4.0 → 2.0.0），打 tag
+- 升版本后是否发 Release 由用户决定
 
 ## License
 
