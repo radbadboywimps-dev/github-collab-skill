@@ -1,304 +1,304 @@
-﻿---
+---
 name: github-collab
 version: 1.3.1
-description: 鏍囧噯鍖朑itHub鍗忎綔娴佺▼锛屼粎鍦ㄧ敤鎴烽渶瑕佷笌git/GitHub浜や簰鏃惰Е鍙戙€傝Е鍙戝満鏅細鎻愪氦浠ｇ爜銆佹帹閫併€佹媺鍙栥€佸缓浠撳簱銆佸缓鍒嗘敮銆丳ull Request銆佷唬鐮佸鏌ャ€佸悎骞躲€佺増鏈彂甯冦€佹墦tag銆乺elease銆両ssue绠＄悊銆乬it鎿嶄綔銆佸洖閫€銆乻tash銆佸啿绐佽В鍐炽€乧lone銆乫ork銆佸垵濮嬪寲浠撳簱銆傝Е鍙戣瘝锛氭彁浜ゃ€佹帹閫併€佹帹涓婂幓銆佹媺鍙栥€佸缓浠撳簱銆佸缓鍒嗘敮銆佹彁PR銆佸悎骞躲€佸彂鐗堛€乺elease銆佹墦tag銆乮ssue銆乬it銆佹挙閿€銆佸洖閫€銆乻tash銆佸啿绐併€乧lone銆乫ork銆佷紶鍒癵ithub銆佸悓姝ヤ唬鐮併€佷笂浼犱唬鐮併€佺洿鎺ヤ笂浼犮€備笉瑙﹀彂锛氱函缂栫爜銆佽皟璇曘€侀噸鏋勩€佸啓娴嬭瘯銆佽浠ｇ爜銆佹妧鏈璁虹瓑涓嶆秹鍙奼it/GitHub鎿嶄綔鐨勫紑鍙戣涓猴紱浠呮彁鍙奼it/GitHub姒傚康浣嗕笉瑕佹眰鎵ц鎿嶄綔鏃讹紙濡?git鏄粈涔?"鎻愪氦璁㈠崟""鎴戠敤git绠＄悊鐗堟湰"锛変篃涓嶈Е鍙戙€傝繖浜涘満鏅笅鏈琒kill淇濇寔娌夐粯锛屼笉鎵ц浠讳綍git鍛戒护鎴栨鏌ャ€?
+description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
-# GitHub 鍗忎綔娴佺▼
+# GitHub 协作流程
 
-## 瑙﹀彂杈圭晫
+## 触发边界
 
-**鍙湪鐢ㄦ埛鏄庣‘瑕佸仛 git/GitHub 鎿嶄綔鏃朵粙鍏?*锛堟彁浜ゃ€佹帹閫併€佸缓浠撳簱銆佸垎鏀€丳R銆佸彂鐗堛€佸洖閫€銆佸悓姝ョ瓑锛夈€?
-绾紪鐮併€佽皟璇曘€侀噸鏋勩€佸啓娴嬭瘯銆佽浠ｇ爜銆佹妧鏈璁烘椂**涓嶈Е鍙戙€佷笉妫€鏌ャ€佷笉鎵撴壈**銆?
+**只在用户明确要做 git/GitHub 操作时介入**（提交、推送、建仓库、分支、PR、发版、回退、同步等）。
+纯编码、调试、重构、写测试、读代码、技术讨论时**不触发、不检查、不打扰**。
 
-## 鍚姩妫€鏌ワ紙鎵ц git/GitHub 鎿嶄綔鍓嶏級
+## 启动检查（执行 git/GitHub 操作前）
 
-0. **鐜鍑嗗**锛堟瘡涓細璇濋娆℃墽琛?git 鎿嶄綔鏃讹級锛?
-   - 妫€娴?git 鏄惁鍙敤锛氬厛璇?`git --version`锛屼笉鍙敤鍒欐寜骞冲彴鏌ユ壘甯歌瀹夎璺緞锛堣瑙?[references/platform-commands.md](references/platform-commands.md) 鐨?git 璺緞琛級
-   - 鎵惧埌渚挎惡鐗?git 鏃讹紝灏嗗叾鐩綍鍔犲叆褰撳墠浼氳瘽 PATH锛堜笉淇敼绯荤粺鐜鍙橀噺锛?
-   - 鎵句笉鍒?git 鈫?寮曞瀹夎锛圵indows: winget 鎴栦究鎼虹増锛沵acOS: `brew install git`锛汱inux: `apt/yum install git`锛?
-   - Windows PowerShell 涓嬭缃?`$env:GIT_REDIRECT_STDERR = '2>&1'`锛屾秷闄?git 杩涘害淇℃伅瀵艰嚧鐨勭孩鑹查敊璇樉绀?
-   - 妫€娴嬬粨鏋滃湪褰撳墠浼氳瘽缂撳瓨锛屼笉閲嶅妫€娴?
-1. 纭畾宸ヤ綔鐩綍锛氱敤鎴锋寚瀹氱殑椤圭洰璺緞锛屾垨褰撳墠瀵硅瘽涓鍦ㄦ搷浣滅殑鐩綍
-2. 妫€鏌ユ槸鍚︿负 git 浠撳簱锛?
-   - 涓嶆槸 鈫?璇㈤棶鐢ㄦ埛鏄惁鍒濆鍖栵紙璧?鏂伴」鐩垵濮嬪寲"娴佺▼锛?
-   - 鏄?鈫?鎵ц `git status` 鍜?`git branch --show-current` 纭鐘舵€?
-3. 纭畾娴佺▼妯″紡锛堣"娴佺▼妯″紡"绔犺妭锛夛細
-   - 璇诲彇 AGENTS.md 涓殑 `## GitHub 鍗忎綔璁剧疆`锛堝鏈夛級
-   - 缁撳悎鐢ㄦ埛鏈璇皵鍒ゆ柇璧扮畝鍗曡繕鏄畬鏁存祦绋?
-4. 妫€鏌ラ」鐩牴鐩綍鏄惁鏈?AGENTS.md锛?
-   - 鏈?鈫?璇诲彇骞堕伒寰叾涓殑椤圭洰绾﹀畾
-   - 娌℃湁涓旇蛋瀹屾暣娴佺▼ 鈫?鎵弿椤圭洰缁撴瀯锛屾寜 [references/agents-template.md](references/agents-template.md) 鐢熸垚涓€浠斤紝灞曠ず缁欑敤鎴风‘璁ゅ悗鍐欏叆
-   - 娌℃湁涓旇蛋绠€鍗曟祦绋?鈫?涓嶄富鍔ㄧ敓鎴愶紝绛夌敤鎴疯姹傛垨椤圭洰鍙樺鏉傛椂鍐嶈
-5. 濡傛灉鏄凡鏈変粨搴擄紝寮€濮嬪伐浣滃墠鍏?`git pull` 鎷夊彇鏈€鏂颁唬鐮侊紙绠€鍗曟祦绋嬩笅闈欓粯鎵ц锛屽け璐ヤ笉闃诲锛夈€傚鏋滄湰鍦颁笌杩滅▼鍥?MCP 涓婁紶鑰屽垎鍙夛紝鎸?鏈湴涓庤繙绋嬪巻鍙插垎鍙?绔犺妭澶勭悊
+0. **环境准备**（每个会话首次执行 git 操作时）：
+   - 检测 git 是否可用：先试 `git --version`，不可用则按平台查找常见安装路径（详见 [references/platform-commands.md](references/platform-commands.md) 的 git 路径表）
+   - 找到便携版 git 时，将其目录加入当前会话 PATH（不修改系统环境变量）
+   - 找不到 git → 引导安装（Windows: winget 或便携版；macOS: `brew install git`；Linux: `apt/yum install git`）
+   - Windows PowerShell 下设置 `$env:GIT_REDIRECT_STDERR = '2>&1'`，消除 git 进度信息导致的红色错误显示
+   - 检测结果在当前会话缓存，不重复检测
+1. 确定工作目录：用户指定的项目路径，或当前对话中正在操作的目录
+2. 检查是否为 git 仓库：
+   - 不是 → 询问用户是否初始化（走"新项目初始化"流程）
+   - 是 → 执行 `git status` 和 `git branch --show-current` 确认状态
+3. 确定流程模式（见"流程模式"章节）：
+   - 读取 AGENTS.md 中的 `## GitHub 协作设置`（如有）
+   - 结合用户本次语气判断走简单还是完整流程
+4. 检查项目根目录是否有 AGENTS.md：
+   - 有 → 读取并遵循其中的项目约定
+   - 没有且走完整流程 → 扫描项目结构，按 [references/agents-template.md](references/agents-template.md) 生成一份，展示给用户确认后写入
+   - 没有且走简单流程 → 不主动生成，等用户要求或项目变复杂时再说
+5. 如果是已有仓库，开始工作前先 `git pull` 拉取最新代码（简单流程下静默执行，失败不阻塞）。如果本地与远程因 MCP 上传而分叉，按"本地与远程历史分叉"章节处理
 
-## 宸ュ叿鍒嗗伐
+## 工具分工
 
-| 鎿嶄綔绫诲瀷 | 浣跨敤宸ュ叿 |
+| 操作类型 | 使用工具 |
 |----------|----------|
-| 鏈湴鏂囦欢鏆傚瓨銆佹彁浜ゃ€佹煡鐪嬪樊寮傘€佹棩蹇椼€佸垎鏀垏鎹€乻tash | 鏈湴 git 鍛戒护 |
-| 鎺ㄩ€併€佹媺鍙栵紙push/pull/fetch锛?| 鏈湴 git 鍛戒护 |
-| 鍒涘缓浠撳簱銆丗ork | GitHub MCP锛坈reate_repository / fork_repository锛?|
-| Pull Request 鍒涘缓銆佸鏌ャ€佸悎骞?| GitHub MCP锛坈reate_pull_request / pull_request_review_write / merge_pull_request锛?|
-| Issue 鍒涘缓銆佽瘎璁恒€佹爣绛?| GitHub MCP锛坕ssue_write / add_issue_comment锛?|
-| Release 鍙戝竷 | GitHub MCP锛坓et_latest_release / list_releases锛?|
-| 浠ｇ爜鎼滅储銆佷粨搴撴悳绱?| GitHub MCP锛坰earch_code / search_repositories锛?|
-| GitHub 涓婄殑鏂囦欢鍒涘缓/淇敼锛堥潪鏈湴浠撳簱鍦烘櫙锛?| GitHub MCP锛坈reate_or_update_file / push_files锛?|
-| 浠撳簱璁剧疆锛堝彲瑙佹€с€佹弿杩帮級銆丷elease 闄勪欢銆丆I/CD銆丄PI 鐩撮€?| gh CLI锛堟噿鍔犺浇锛孧CP 涓嶆敮鎸佹椂鑷姩瀹夎寮曞锛岃瑙?[references/gh-cli-setup.md](references/gh-cli-setup.md)锛?|
+| 本地文件暂存、提交、查看差异、日志、分支切换、stash | 本地 git 命令 |
+| 推送、拉取（push/pull/fetch） | 本地 git 命令 |
+| 创建仓库、Fork | GitHub MCP（create_repository / fork_repository） |
+| Pull Request 创建、审查、合并 | GitHub MCP（create_pull_request / pull_request_review_write / merge_pull_request） |
+| Issue 创建、评论、标签 | GitHub MCP（issue_write / add_issue_comment） |
+| Release 发布 | GitHub MCP（get_latest_release / list_releases） |
+| 代码搜索、仓库搜索 | GitHub MCP（search_code / search_repositories） |
+| GitHub 上的文件创建/修改（非本地仓库场景） | GitHub MCP（create_or_update_file / push_files） |
+| 仓库设置（可见性、描述）、Release 附件、CI/CD、API 直通 | gh CLI（懒加载，MCP 不支持时自动安装引导，详见 [references/gh-cli-setup.md](references/gh-cli-setup.md)） |
 
-鍘熷垯锛氭秹鍙婃湰鍦板伐浣滃尯鏂囦欢鐨勬搷浣滅敤 git 鍛戒护锛涙秹鍙?GitHub 骞冲彴鍔熻兘鐨勪紭鍏堢敤 MCP锛堥浂閰嶇疆锛夛紱MCP 涓嶆敮鎸佺殑鎸夐渶寮曞 gh CLI銆?
+原则：涉及本地工作区文件的操作用 git 命令；涉及 GitHub 平台功能的优先用 MCP（零配置）；MCP 不支持的按需引导 gh CLI。
 
-## 娴佺▼妯″紡
+## 流程模式
 
-鍒嗕袱妗ｏ細**绠€鍗曟祦绋?*锛堥粯璁わ級鍜?*瀹屾暣娴佺▼**銆傚畨鍏ㄦ鏌ワ紙瀵嗛挜銆佸ぇ鏂囦欢銆?env锛夊湪涓ょ妯″紡涓嬮兘闈欓粯鎵ц锛屼笉鍙楀奖鍝嶃€?
+分两档：**简单流程**（默认）和**完整流程**。安全检查（密钥、大文件、.env）在两种模式下都静默执行，不受影响。
 
-### 鍒ゆ柇浼樺厛绾?
-1. 鐢ㄦ埛鏈鐨勮瘽锛?鐩存帴涓婁紶""蹇紶涓婂幓" 鈫?绠€鍗曪紱"璧癙R""寤哄垎鏀?"姝ｅ紡鎻愪氦" 鈫?瀹屾暣
-2. AGENTS.md 涓殑閰嶇疆锛坄## GitHub 鍗忎綔璁剧疆` 灏忚妭锛?
-3. 鍙戠幇 git log 涓湁澶氫釜浣滆€呴偖绠辨椂锛屽缓璁竴娆★細"妫€娴嬪埌澶氫汉鍗忎綔锛岃涓嶈璧板畬鏁存祦绋嬶紵"
-4. 閮芥病鏈?鈫?榛樿绠€鍗曟祦绋?
+### 判断优先级
+1. 用户本次的话："直接上传""快传上去" → 简单；"走PR""建分支""正式提交" → 完整
+2. AGENTS.md 中的配置（`## GitHub 协作设置` 小节）
+3. 发现 git log 中有多个作者邮箱时，建议一次："检测到多人协作，要不要走完整流程？"
+4. 都没有 → 默认简单流程
 
-### 绠€鍗曟祦绋嬶紙榛樿锛?
-- 鐩存帴鍦?main 涓婃彁浜わ紝涓嶅缓鍒嗘敮銆佷笉寤?PR
-- 閫傚悎锛氫釜浜洪」鐩€佸皬宸ュ叿銆乿ibe coding銆佸揩閫熻凯浠?
-- 姝ラ锛氶潤榛樺畨鍏ㄦ鏌?鈫?`git add` 鈫?`git commit` 鈫?`git push`
+### 简单流程（默认）
+- 直接在 main 上提交，不建分支、不建 PR
+- 适合：个人项目、小工具、vibe coding、快速迭代
+- 步骤：静默安全检查 → `git add` → `git commit` → `git push`
 
-### 瀹屾暣娴佺▼
-- 浠?main 寤?feat/fix 鍒嗘敮锛岄€氳繃 PR 鍚堝苟
-- 閫傚悎锛氬浜哄崗浣溿€佹寮忛」鐩€佸ぇ鏀瑰姩銆佸紑婧愰」鐩?
-- 姝ラ锛氬缓鍒嗘敮 鈫?寮€鍙?鈫?鎻愪氦鍓嶆鏌?鈫?push 鈫?寤?PR 鈫?鑷煡 鈫?鍚堝苟 鈫?娓呯悊鍒嗘敮
+### 完整流程
+- 从 main 建 feat/fix 分支，通过 PR 合并
+- 适合：多人协作、正式项目、大改动、开源项目
+- 步骤：建分支 → 开发 → 提交前检查 → push → 建 PR → 自查 → 合并 → 清理分支
 
-### 鍒嗘敮绛栫暐锛堜粎瀹屾暣娴佺▼锛?
+### 分支策略（仅完整流程）
 
-- `main`锛氱ǔ瀹氫富骞诧紝濮嬬粓鍙繍琛岋紝**绂佹鐩存帴鎻愪氦**
-- `feat/*`锛氭柊鍔熻兘锛屽 `feat/bilibili-8k`
-- `fix/*`锛欱ug 淇锛屽 `fix/cctv-m3u8`
-- `chore/*`锛氭瀯寤恒€侀厤缃€佷緷璧?
-- `docs/*`锛氭枃妗?
-- `refactor/*`锛氶噸鏋勶紙涓嶆敼鍙樺姛鑳斤級
-- `perf/*`锛氭€ц兘浼樺寲
-- `test/*`锛氭祴璇曠浉鍏?
+- `main`：稳定主干，始终可运行，**禁止直接提交**
+- `feat/*`：新功能，如 `feat/bilibili-8k`
+- `fix/*`：Bug 修复，如 `fix/cctv-m3u8`
+- `chore/*`：构建、配置、依赖
+- `docs/*`：文档
+- `refactor/*`：重构（不改变功能）
+- `perf/*`：性能优化
+- `test/*`：测试相关
 
-鍒嗘敮鍚嶇敤鑻辨枃灏忓啓锛屽崟璇嶉棿鐢ㄨ繛瀛楃銆備竴涓垎鏀彧鍋氫竴浠朵簨銆?
+分支名用英文小写，单词间用连字符。一个分支只做一件事。
 
-## Commit 瑙勮寖
+## Commit 规范
 
-鏍煎紡锛歚<绫诲瀷>: <绠€杩?`
+格式：`<类型>: <简述>`
 
-绫诲瀷锛歠eat / fix / chore / docs / refactor / style / test / perf
+类型：feat / fix / chore / docs / refactor / style / test / perf
 
-- 绠€杩扮敤涓枃锛?0瀛椾互鍐咃紝缁撳熬涓嶅姞鍙ュ彿
-- 姝ｆ枃锛堝彲閫夛級璇存槑"涓轰粈涔堟敼"锛屼笉鎻忚堪"鏀逛簡浠€涔?锛坉iff 宸茶鏄庯級
-- 鍏宠仈 Issue 鏃跺啓 `(#123)`锛屽叧闂?Issue 鍐?`Closes #123`
+- 简述用中文，50字以内，结尾不加句号
+- 正文（可选）说明"为什么改"，不描述"改了什么"（diff 已说明）
+- 关联 Issue 时写 `(#123)`，关闭 Issue 写 `Closes #123`
 
-绀轰緥锛?
+示例：
 ```
-feat: B绔欐彃浠舵敮鎸?K鍒嗚鲸鐜囦笅杞?
-fix: 淇CCTV m3u8鍦板潃瑙ｆ瀽澶辫触鐨勯棶棰?
+feat: B站插件支持8K分辨率下载
+fix: 修复CCTV m3u8地址解析失败的问题
 ```
 
-## 鏍囧噯寮€鍙戞祦绋?
+## 标准开发流程
 
-### 绠€鍗曟祦绋嬶紙榛樿锛?
-1. 闈欓粯鎵ц瀹夊叏妫€鏌ワ紙瀵嗛挜銆佸ぇ鏂囦欢銆?env锛夛紝鏈夐棶棰樻墠鎵撴柇锛屾病闂涓嶈璇?
-2. `git add` 鏆傚瓨鏀瑰姩
-3. `git commit -m "瑙勮寖鐨刢ommit message"`
+### 简单流程（默认）
+1. 静默执行安全检查（密钥、大文件、.env），有问题才打断，没问题不说话
+2. `git add` 暂存改动
+3. `git commit -m "规范的commit message"`
 4. `git push`
-5. 鎺ㄩ€佹垚鍔熷悗绠€鐭姤鍛?
+5. 推送成功后简短报告
 
-### 瀹屾暣娴佺▼
+### 完整流程
 
-#### 寮€濮嬪伐浣?
-1. `git status` 纭宸ヤ綔鍖哄共鍑€
-2. `git pull` 鎷夊彇鏈€鏂颁唬鐮?
-3. 浠?main 鍒涘缓宸ヤ綔鍒嗘敮锛歚git checkout -b feat/xxx`
+#### 开始工作
+1. `git status` 确认工作区干净
+2. `git pull` 拉取最新代码
+3. 从 main 创建工作分支：`git checkout -b feat/xxx`
 
-#### 寮€鍙戜腑
-- 灏忔鎻愪氦锛屾瘡涓?commit 鏄竴涓畬鏁撮€昏緫鍗曞厓
-- 涓存椂鍒囨崲浠诲姟鏃剁敤 `git stash` 鏆傚瓨锛堣瑙?[references/git-operations.md](references/git-operations.md)锛?
+#### 开发中
+- 小步提交，每个 commit 是一个完整逻辑单元
+- 临时切换任务时用 `git stash` 暂存（详见 [references/git-operations.md](references/git-operations.md)）
 
-#### 鎻愪氦鍓嶆鏌?
-- 闈欓粯瀹夊叏妫€鏌ワ紙瀵嗛挜銆佸ぇ鏂囦欢銆?env锛夆€斺€斿缁堟墽琛?
-- `git status` 纭鏃犺鍔犵殑鏂囦欢
-- `git diff --stat` 妫€鏌ユ敼鍔ㄨ妯★細鍙樻洿鏂囦欢瓒呰繃 20 涓椂鎻愰啋鎷嗗垎锛堜粎璀﹀憡锛屼笉闃绘锛?
-- `git diff` 妫€鏌ユ敼鍔ㄥ唴瀹?
-- 纭 .gitignore 宸茶鐩栨晱鎰熸枃浠跺拰浜х墿鐩綍
-- 濡傛灉鏀逛簡椤圭洰鏋舵瀯鎴栦緷璧栵紝鍚屾鏇存柊 AGENTS.md
+#### 提交前检查
+- 静默安全检查（密钥、大文件、.env）——始终执行
+- `git status` 确认无误加的文件
+- `git diff --stat` 检查改动规模：变更文件超过 20 个时提醒拆分（仅警告，不阻止）
+- `git diff` 检查改动内容
+- 确认 .gitignore 已覆盖敏感文件和产物目录
+- 如果改了项目架构或依赖，同步更新 AGENTS.md
 
-#### 鎺ㄩ€佷笌鍚堝苟
-1. `git push -u origin <鍒嗘敮鍚?`
-2. 閫氳繃 MCP 鍒涘缓 Pull Request
-3. PR 鎻忚堪鍖呭惈锛氭敼浜嗕粈涔堛€佷负浠€涔堛€佹€庝箞楠岃瘉鐨?
-4. 鍚堝苟鍓嶈繃涓€閬嶄笅鏂硅嚜鏌ユ竻鍗?
-5. 鍚堝苟鍚庤嚜鍔ㄦ竻鐞嗭紙涓嶉渶瑕佺敤鎴锋彁閱掞級锛?
+#### 推送与合并
+1. `git push -u origin <分支名>`
+2. 通过 MCP 创建 Pull Request
+3. PR 描述包含：改了什么、为什么、怎么验证的
+4. 合并前过一遍下方自查清单
+5. 合并后自动清理（不需要用户提醒）：
    - `git checkout main && git pull`
-   - `git branch -d <鍒嗘敮鍚?`锛堝垹闄ゆ湰鍦板垎鏀紝鐢?-d 涓嶇敤 -D锛屾湭鍚堝苟鐨勫垎鏀笉浼氳璇垹锛?
-   - `git push origin --delete <鍒嗘敮鍚?`锛堝垹闄よ繙绋嬪垎鏀級
+   - `git branch -d <分支名>`（删除本地分支，用 -d 不用 -D，未合并的分支不会被误删）
+   - `git push origin --delete <分支名>`（删除远程分支）
 
-### PR 鑷煡娓呭崟锛堝畬鏁存祦绋嬶級
-- [ ] 浠ｇ爜鑳借繍琛?鏋勫缓閫氳繃
-- [ ] 娌℃湁璇彁浜ょ殑鏂囦欢锛堝瘑閽ャ€侀厤缃€佷骇鐗╋級
-- [ ] commit message 娓呮櫚瑙勮寖
-- [ ] 濡傛敼浜嗘灦鏋?渚濊禆锛孉GENTS.md 宸叉洿鏂?
-- [ ] 涓汉椤圭洰澶ф敼鍔ㄥ彲鑷纭锛涘崗浣滈」鐩渶绛夊緟 review
+### PR 自查清单（完整流程）
+- [ ] 代码能运行/构建通过
+- [ ] 没有误提交的文件（密钥、配置、产物）
+- [ ] commit message 清晰规范
+- [ ] 如改了架构/依赖，AGENTS.md 已更新
+- [ ] 个人项目大改动可自行确认；协作项目需等待 review
 
-### 涓汉椤圭洰绠€鍖?
-- 涓汉椤圭洰鐨勫皬鏀瑰姩锛堜慨typo銆佹敼閰嶇疆銆佸皬bugfix锛夛細榛樿璧扮畝鍗曟祦绋嬬洿鎺ユ彁浜?
-- 澶у姛鑳姐€佹灦鏋勫彉鏇淬€佹秹鍙婂鏂囦欢鐨勯噸鏋勶細寤鸿璧板畬鏁存祦绋嬬暀璁板綍
-- 鍗忎綔鑰?鈮? 浜虹殑椤圭洰锛氳蛋瀹屾暣娴佺▼
+### 个人项目简化
+- 个人项目的小改动（修typo、改配置、小bugfix）：默认走简单流程直接提交
+- 大功能、架构变更、涉及多文件的重构：建议走完整流程留记录
+- 协作者 ≥2 人的项目：走完整流程
 
-## 鏂伴」鐩垵濮嬪寲
+## 新项目初始化
 
-1. 閫氳繃 MCP `create_repository` 鍒涘缓浠撳簱锛堥粯璁ょ鏈夛紝闄ら潪鐢ㄦ埛瑕佹眰鍏紑锛?
-2. 鍦ㄦ湰鍦伴」鐩洰褰?`git init`
-3. 鏍规嵁璇█/妗嗘灦鐢熸垚 .gitignore锛圥ython/Node/Go/Java 绛夊父瑙佹ā鏉匡級
-4. 鐢熸垚 AGENTS.md锛堟寜 [references/agents-template.md](references/agents-template.md)锛?
-5. 鍒濆鎻愪氦锛歚git add . && git commit -m "chore: 鍒濆鍖栭」鐩?`
-6. 鍏宠仈杩滅▼骞舵帹閫侊細`git remote add origin <url> && git push -u origin main`
-7. **棣栨鎺ㄩ€佹垚鍔熷悗锛岃闂敤鎴锋槸鍚﹀叕寮€浠撳簱**锛?
-   - 鍛婄煡浠撳簱鍦板潃锛岃鏄庡綋鍓嶄负绉佹湁
-   - 闂細"瑕佷笉瑕佸叕寮€锛熷叕寮€鍚庝换浣曚汉閮借兘鏌ョ湅鍜屼娇鐢ㄤ綘鐨勪唬鐮侊紝鍚屾椂闇€瑕侀厤缃紑婧愬崗璁紙license锛夈€?
-   - 濡傛灉鐢ㄦ埛閫夋嫨鍏紑锛氭牴鎹」鐩被鍨嬫帹鑽?license锛堣涓嬫柟 License 绔犺妭锛夛紝鐢ㄦ埛纭鍚庣敓鎴?LICENSE 鏂囦欢銆佹彁浜ゆ帹閫併€佸皢浠撳簱鍒囨崲涓哄叕寮€
-   - 濡傛灉鐢ㄦ埛閫夋嫨鏆備笉鍏紑锛氫繚鎸佺鏈夛紝浠ュ悗闅忔椂鍙互璇?鍏紑浠撳簱"瑙﹀彂姝ゆ祦绋?
+1. 通过 MCP `create_repository` 创建仓库（默认私有，除非用户要求公开）
+2. 在本地项目目录 `git init`
+3. 根据语言/框架生成 .gitignore（Python/Node/Go/Java 等常见模板）
+4. 生成 AGENTS.md（按 [references/agents-template.md](references/agents-template.md)）
+5. 初始提交：`git add . && git commit -m "chore: 初始化项目"`
+6. 关联远程并推送：`git remote add origin <url> && git push -u origin main`
+7. **首次推送成功后，询问用户是否公开仓库**：
+   - 告知仓库地址，说明当前为私有
+   - 问："要不要公开？公开后任何人都能查看和使用你的代码，同时需要配置开源协议（license）。"
+   - 如果用户选择公开：根据项目类型推荐 license（见下方 License 章节），用户确认后生成 LICENSE 文件、提交推送、将仓库切换为公开
+   - 如果用户选择暂不公开：保持私有，以后随时可以说"公开仓库"触发此流程
 
-## 瀹夊叏绾㈢嚎
+## 安全红线
 
-- 姘歌繙涓嶆彁浜わ細瀵嗙爜銆丄PI Key銆乀oken銆?env銆佺閽ャ€丆ookie/Session 鏂囦欢
-- 姘歌繙涓嶆彁浜わ細>50MB 浜岃繘鍒舵枃浠讹紙瑙嗛銆乪xe銆佷緷璧栦簩杩涘埗锛夛紱闇€瑕佹椂寮曞鐢ㄦ埛鐢?Git LFS
-- 姘歌繙涓嶆彁浜わ細node_modules/銆乢_pycache__/銆乥uild/銆乨ist/ 绛変骇鐗?
-- 鍙戠幇璇彁浜ゅ瘑閽ワ細绔嬪嵆鍛婄煡鐢ㄦ埛杞崲瀵嗛挜锛屽啀娓呯悊 git 鍘嗗彶
-- 浠撳簱榛樿绉佹湁锛岀敤鎴锋槑纭姹傛墠鍏紑
-- 鐮村潖鎬ф搷浣滐紙force push銆佸垹闄ゅ垎鏀€侀噸缃巻鍙诧級蹇呴』璇存槑鍚庢灉骞剁粡鐢ㄦ埛纭
+- 永远不提交：密码、API Key、Token、.env、私钥、Cookie/Session 文件
+- 永远不提交：>50MB 二进制文件（视频、exe、依赖二进制）；需要时引导用户用 Git LFS
+- 永远不提交：node_modules/、__pycache__/、build/、dist/ 等产物
+- 发现误提交密钥：立即告知用户轮换密钥，再清理 git 历史
+- 仓库默认私有，用户明确要求才公开
+- 破坏性操作（force push、删除分支、重置历史）必须说明后果并经用户确认
 
-## 鏁呴殰闄嶇骇涓庢仮澶?
+## 故障降级与恢复
 
-### 鏍稿績鍘熷垯
-- **浠诲姟蹇呴』瀹屾垚锛屼笉鐣欏熬宸?*锛氶檷绾у埌 MCP 鍚庯紝鎶婃墍鏈夊緟涓婁紶鏂囦欢涓€娆℃€т紶瀹岋紝涓嶈鍙紶涓€閮ㄥ垎鐒跺悗璇?绛夌綉缁滄仮澶?
-- **鏈湴鍚屾鏄?agent 鐨勪簨锛屼笉鏄敤鎴风殑寰呭姙**锛氫笉瑕佽鐢ㄦ埛鎵嬪姩鎵ц fetch+reset
-- **涓诲姩璇婃柇锛屼笉瑕佹満姊伴噸璇?*锛氱綉缁滃け璐ユ椂鍒嗘瀽鍘熷洜锛圖NS/绔彛/浠ｇ悊锛夛紝缁欑敤鎴峰彲琛屽缓璁?
-- **Skill 瑙勫垯鏄寚瀵间笉鏄灧閿?*锛氭牴鎹疄闄呮儏鍐电伒娲诲喅绛栵紝涓嶈琚鏋跺崱姝诲鑷撮檷鏅?
-- **涓夐€氶亾浜掕ˉ**锛氭湰鍦?git 浼樺厛锛岀綉缁滀笉閫氶檷绾?MCP锛孧CP 涓嶆敮鎸佺殑鎿嶄綔鎸夐渶寮曞 gh CLI锛堣嚜鍔ㄥ畨瑁?璁よ瘉锛屼笉鎻愬墠鎵撴壈锛?
+### 核心原则
+- **任务必须完成，不留尾巴**：降级到 MCP 后，把所有待上传文件一次性传完，不要只传一部分然后说"等网络恢复"
+- **本地同步是 agent 的事，不是用户的待办**：不要让用户手动执行 fetch+reset
+- **主动诊断，不要机械重试**：网络失败时分析原因（DNS/端口/代理），给用户可行建议
+- **Skill 规则是指导不是枷锁**：根据实际情况灵活决策，不要被框架卡死导致降智
+- **三通道互补**：本地 git 优先，网络不通降级 MCP，MCP 不支持的操作按需引导 gh CLI（自动安装+认证，不提前打扰）
 
-### 鏈湴 git push 缃戠粶澶辫触
-褰?`git push` 鍥犵綉缁滈棶棰樺け璐ワ紙杩炴帴瓒呮椂銆佽繛鎺ラ噸缃€佹棤娉曡В鏋?host銆?43 绔彛涓嶉€氾級鏃讹細
+### 本地 git push 网络失败
+当 `git push` 因网络问题失败（连接超时、连接重置、无法解析 host、443 端口不通）时：
 
-1. **纭澶辫触绫诲瀷**锛氭鏌ユ姤閿欎俊鎭?
-   - `Connection was reset` / `Could not resolve host` / `Failed to connect` / `Recv failure` 鈫?缃戠粶闂
-   - `403` / `Authentication failed` 鈫?璁よ瘉闂锛堣蛋涓嬫柟璁よ瘉鎺掓煡锛?
+1. **确认失败类型**：检查报错信息
+   - `Connection was reset` / `Could not resolve host` / `Failed to connect` / `Recv failure` → 网络问题
+   - `403` / `Authentication failed` → 认证问题（走下方认证排查）
 
-2. **MCP 闄嶇骇涓婁紶鍓嶏紝鍏堢‘淇濇湰鍦版敼鍔ㄥ凡鎻愪氦**锛?
-   - `git status --porcelain` 妫€鏌ユ湭鎻愪氦鏀瑰姩
-   - 鏈夋湭鎻愪氦鏀瑰姩 鈫?鍏?`git add` + `git commit`锛堟垨 stash锛夛紝纭繚 MCP 涓婁紶鐨勫唴瀹逛笌鏈湴涓€鑷?
-   - 杩欎竴姝ヤ繚璇佸悗缁悓姝ユ椂涓嶄細涓㈠け浠讳綍鍐呭
+2. **MCP 降级上传前，先确保本地改动已提交**：
+   - `git status --porcelain` 检查未提交改动
+   - 有未提交改动 → 先 `git add` + `git commit`（或 stash），确保 MCP 上传的内容与本地一致
+   - 这一步保证后续同步时不会丢失任何内容
 
-3. **绔嬪嵆闄嶇骇鍒?MCP锛岄€愭壒涓婁紶骞舵帰娴嬬綉缁滄仮澶?*锛?
-   - 鐢?`git diff --name-only HEAD~1`锛堟垨瀵规瘮杩滅▼锛夊垪鍑烘墍鏈夐渶瑕佷笂浼犵殑鏂囦欢
-   - 灏嗘枃浠跺垎鎵癸紙姣忔壒 3-5 涓紝澶ф枃浠跺崟鐙竴鎵癸級锛岀敤 MCP `push_files` 閫愭壒涓婁紶
-   - **姣忔壒涓婁紶瀹屾垚鍚庯紝鍋氫竴娆″揩閫熺綉缁滄帰娴?*锛? 绉掕秴鏃讹紝璺ㄥ钩鍙板懡浠よ [references/platform-commands.md](references/platform-commands.md)锛夛細
-     - 缃戠粶鎭㈠ 鈫?鍓╀綑鏂囦欢绔嬪嵆鍒囧洖鏈湴 `git push`锛屼竴娆℃帹瀹岋紝涓嶅啀璧?MCP
-     - 浠嶄笉閫?鈫?鎻愰啋涓€娆?鏈湴缃戠粶浠嶄笉閫氾紝寤鸿妫€鏌?VPN/浠ｇ悊璁剧疆"锛岀劧鍚庣户缁?MCP 涓婁紶涓嬩竴鎵癸紙涓嶉噸澶嶆彁閱掞級
-   - 宸插瓨鍦ㄤ簬杩滅▼鐨勬枃浠堕渶鍏?`get_file_contents` 鑾峰彇 sha 鍐嶆洿鏂?
-   - **涓嶈鐣?绛夌綉缁滄仮澶嶅啀浼?鐨勫熬宸达紝鎵€鏈夋枃浠跺繀椤诲湪鏈浠诲姟涓紶瀹?*
+3. **立即降级到 MCP，逐批上传并探测网络恢复**：
+   - 用 `git diff --name-only HEAD~1`（或对比远程）列出所有需要上传的文件
+   - 将文件分批（每批 3-5 个，大文件单独一批），用 MCP `push_files` 逐批上传
+   - **每批上传完成后，做一次快速网络探测**（3 秒超时，跨平台命令见 [references/platform-commands.md](references/platform-commands.md)）：
+     - 网络恢复 → 剩余文件立即切回本地 `git push`，一次推完，不再走 MCP
+     - 仍不通 → 提醒一次"本地网络仍不通，建议检查 VPN/代理设置"，然后继续 MCP 上传下一批（不重复提醒）
+   - 已存在于远程的文件需先 `get_file_contents` 获取 sha 再更新
+   - **不要留"等网络恢复再传"的尾巴，所有文件必须在本次任务中传完**
 
-4. **涓婁紶鍚庢牎楠?*锛氱敤 MCP `get_file_contents` 鎶芥煡鍏抽敭鏂囦欢澶у皬涓庢湰鍦颁竴鑷?
+4. **上传后校验**：用 MCP `get_file_contents` 抽查关键文件大小与本地一致
 
-5. **MCP 涓婁紶鍚庝笉绔嬪嵆 reset锛屾爣璁颁负寰呭悓姝?*锛?
-   - 涓嶅己鍒?`fetch + reset`锛岄伩鍏嶅湪缃戠粶涓嶇ǔ瀹氭椂鍙嶅鎿嶄綔
-   - 涓嬫鏈?git 鎿嶄綔鏃讹紙鍚姩妫€鏌ョ 5 姝?pull锛夛紝鎸?鏈湴涓庤繙绋嬪巻鍙插垎鍙?绔犺妭鑷劧鍚屾
+5. **MCP 上传后不立即 reset，标记为待同步**：
+   - 不强制 `fetch + reset`，避免在网络不稳定时反复操作
+   - 下次有 git 操作时（启动检查第 5 步 pull），按"本地与远程历史分叉"章节自然同步
 
-6. **涓诲姩璇婃柇缃戠粶骞剁粰寤鸿**锛堥娆″け璐ユ椂锛屼笉閲嶅锛夛細
-   - 妫€娴?DNS 瑙ｆ瀽銆?43 绔彛杩為€氭€с€佺郴缁熶唬鐞嗚缃€佸父瑙佷唬鐞嗙鍙ｏ紙璺ㄥ钩鍙板懡浠よ [references/platform-commands.md](references/platform-commands.md)锛?
-   - 濡傛灉鍙戠幇鏈湴鏈変唬鐞嗚蒋浠跺湪杩愯锛屽缓璁厤缃?git 浠ｇ悊锛歚git config --global http.proxy http://127.0.0.1:绔彛`
-   - 濡傛灉瀹屽叏娌℃湁浠ｇ悊锛屽憡鐭ョ敤鎴?GitHub 鍦ㄥ浗鍐呰闂笉绋冲畾锛孧CP 閫氶亾涓嶅彈褰卞搷鍙户缁娇鐢?
+6. **主动诊断网络并给建议**（首次失败时，不重复）：
+   - 检测 DNS 解析、443 端口连通性、系统代理设置、常见代理端口（跨平台命令见 [references/platform-commands.md](references/platform-commands.md)）
+   - 如果发现本地有代理软件在运行，建议配置 git 代理：`git config --global http.proxy http://127.0.0.1:端口`
+   - 如果完全没有代理，告知用户 GitHub 在国内访问不稳定，MCP 通道不受影响可继续使用
 
-### 璁よ瘉澶辫触
-褰?git 鎿嶄綔杩斿洖 403/Authentication failed锛?
-1. 妫€鏌?credential helper锛歚git config --global credential.helper`
-   - Windows锛氬簲涓?`manager`锛圙it Credential Manager锛?
-   - macOS锛氬簲涓?`osxkeychain`
-   - Linux锛氬簲涓?`libsecret` 鎴?`store`
-2. 鏈厤缃垯璁剧疆瀵瑰簲 helper
-3. 寮曞鐢ㄦ埛瀹屾垚璁よ瘉锛欸CM 浼氬脊鍑烘祻瑙堝櫒 OAuth 鎺堟潈锛涙棤 GUI 鐜鐢?Personal Access Token
-4. 璁よ瘉瀹屾垚鍚庨噸璇曪紱濡傛灉鐢ㄦ埛涓嶆兂閰嶇疆璁よ瘉锛岀洿鎺ョ敤 MCP 瀹屾垚涓婁紶锛屼笉闃诲浠诲姟
+### 认证失败
+当 git 操作返回 403/Authentication failed：
+1. 检查 credential helper：`git config --global credential.helper`
+   - Windows：应为 `manager`（Git Credential Manager）
+   - macOS：应为 `osxkeychain`
+   - Linux：应为 `libsecret` 或 `store`
+2. 未配置则设置对应 helper
+3. 引导用户完成认证：GCM 会弹出浏览器 OAuth 授权；无 GUI 环境用 Personal Access Token
+4. 认证完成后重试；如果用户不想配置认证，直接用 MCP 完成上传，不阻塞任务
 
-### 鍛戒护鎵ц娉ㄦ剰浜嬮」
-- 鍒ゆ柇 git 鍛戒护鎴愬姛/澶辫触鍙湅 `$LASTEXITCODE -eq 0`锛圵indows锛夋垨 `$? -eq 0`锛坆ash锛夛紝涓嶄緷璧栬緭鍑哄唴瀹规垨棰滆壊
-- Windows PowerShell 涓嬪惎鍔ㄦ鏌ュ凡璁剧疆 `$env:GIT_REDIRECT_STDERR = '2>&1'`锛実it 杩涘害淇℃伅涓嶅啀鏄剧ず涓虹孩鑹查敊璇?
-- 鏈缃鐜鍙橀噺鏃讹紝git 鐨勮繘搴︿俊鎭緭鍑哄埌 stderr 涓嶄唬琛ㄥけ璐ワ紝涓嶈鍥犳鍒ゅ畾鍛戒护澶辫触
+### 命令执行注意事项
+- 判断 git 命令成功/失败只看 `$LASTEXITCODE -eq 0`（Windows）或 `$? -eq 0`（bash），不依赖输出内容或颜色
+- Windows PowerShell 下启动检查已设置 `$env:GIT_REDIRECT_STDERR = '2>&1'`，git 进度信息不再显示为红色错误
+- 未设置该环境变量时，git 的进度信息输出到 stderr 不代表失败，不要因此判定命令失败
 
-### 鏈湴涓庤繙绋嬪巻鍙插垎鍙?
-褰撴湰鍦?commit 閫氳繃 MCP 鎺ㄩ€佸埌杩滅▼鍚庯紙SHA 涓嶅悓锛夛紝鏈湴 git 鍘嗗彶涓庤繙绋嬪垎鍙夈€傚湪涓嬫鏈?git 鎿嶄綔鏃惰嚜鐒跺悓姝ワ細
+### 本地与远程历史分叉
+当本地 commit 通过 MCP 推送到远程后（SHA 不同），本地 git 历史与远程分叉。在下次有 git 操作时自然同步：
 
-1. 鍏?`git status --porcelain` 妫€鏌ユ湭鎻愪氦鏀瑰姩锛屾湁鍒欏厛 stash
+1. 先 `git status --porcelain` 检查未提交改动，有则先 stash
 2. `git fetch origin`
-3. 鍒ゆ柇鏈湴鏄惁鏈夎繙绋嬫病鏈夌殑 commit锛歚git log origin/main..HEAD --oneline`
-   - **娌℃湁棰濆 commit**锛堟湰鍦?commit 鍐呭宸查€氳繃 MCP 涓婁紶锛夆啋 `git reset --hard origin/main`锛堝畨鍏紝鍐呭涓€鑷村彧鏄?SHA 涓嶅悓锛?
-   - **鏈夐澶?commit**锛圡CP 涓婁紶鍚庡張鏈夋柊鎻愪氦锛夆啋 `git rebase origin/main`锛堟妸鏂?commit 閲嶆斁鍒拌繙绋嬩箣涓婏級
-4. 濡傛灉涔嬪墠 stash 浜嗭紝`git stash pop` 鎭㈠
-5. rebase 鍐茬獊鏃跺仠姝㈠苟鍛婄煡鐢ㄦ埛鍐茬獊鏂囦欢锛屼笉寮哄埗澶勭悊
-6. 缃戠粶涓嶉€氬垯璺宠繃锛屼笅娆℃湁 git 鎿嶄綔鏃跺啀鍚屾锛屼笉鍛婄煡鐢ㄦ埛鎵ц浠讳綍鍛戒护
-7. 绂佹 force push
+3. 判断本地是否有远程没有的 commit：`git log origin/main..HEAD --oneline`
+   - **没有额外 commit**（本地 commit 内容已通过 MCP 上传）→ `git reset --hard origin/main`（安全，内容一致只是 SHA 不同）
+   - **有额外 commit**（MCP 上传后又有新提交）→ `git rebase origin/main`（把新 commit 重放到远程之上）
+4. 如果之前 stash 了，`git stash pop` 恢复
+5. rebase 冲突时停止并告知用户冲突文件，不强制处理
+6. 网络不通则跳过，下次有 git 操作时再同步，不告知用户执行任何命令
+7. 禁止 force push
 
-## 鎾ら攢涓庡洖閫€
+## 撤销与回退
 
-甯歌鍦烘櫙閫熸煡锛堝畬鏁磋鏄庤 [references/git-operations.md](references/git-operations.md)锛夛細
+常见场景速查（完整说明见 [references/git-operations.md](references/git-operations.md)）：
 
-| 鍦烘櫙 | 鍛戒护 |
+| 场景 | 命令 |
 |------|------|
-| 涓㈠純宸ヤ綔鍖烘敼鍔?| `git checkout -- <file>` 鎴?`git restore <file>` |
-| 鎾ら攢鏈€鍚庝竴娆ommit锛堜繚鐣欐敼鍔級 | `git reset --soft HEAD~1` |
-| 鎾ら攢鏈€鍚庝竴娆ommit锛堜涪寮冩敼鍔級 | `git reset --hard HEAD~1` |
-| 宸瞤ush鐨刢ommit瑕佹挙閿€ | `git revert <sha>`锛堜笉瑕?force push锛?|
-| 鏆傚瓨褰撳墠鏀瑰姩 | `git stash` / 鎭㈠ `git stash pop` |
+| 丢弃工作区改动 | `git checkout -- <file>` 或 `git restore <file>` |
+| 撤销最后一次commit（保留改动） | `git reset --soft HEAD~1` |
+| 撤销最后一次commit（丢弃改动） | `git reset --hard HEAD~1` |
+| 已push的commit要撤销 | `git revert <sha>`（不要 force push） |
+| 暂存当前改动 | `git stash` / 恢复 `git stash pop` |
 
-## 鐗堟湰鍙戝竷
+## 版本发布
 
-- 璇箟鍖栫増鏈細MAJOR.MINOR.PATCH锛堝 1.2.3锛?
-  - PATCH锛歜ug 淇
-  - MINOR锛氭柊鍔熻兘锛屽悜鍚庡吋瀹?
-  - MAJOR锛氫笉鍏煎鐨勯噸澶у彉鏇?
-- 鎵?tag锛歚git tag v1.2.3 && git push origin v1.2.3`
-- 閫氳繃 MCP 鍒涘缓 GitHub Release锛岄檮 changelog锛堝熀浜?commit 鍘嗗彶鐢熸垚锛?
+- 语义化版本：MAJOR.MINOR.PATCH（如 1.2.3）
+  - PATCH：bug 修复
+  - MINOR：新功能，向后兼容
+  - MAJOR：不兼容的重大变更
+- 打 tag：`git tag v1.2.3 && git push origin v1.2.3`
+- 通过 MCP 创建 GitHub Release，附 changelog（基于 commit 历史生成）
 
 ## License
 
-鍏紑浠撳簱蹇呴』閰嶇疆 LICENSE銆傜鏈変粨搴撲笉闇€瑕併€?
+公开仓库必须配置 LICENSE。私有仓库不需要。
 
-鎺ㄨ崘閫昏緫锛堟牴鎹」鐩被鍨嬭嚜鍔ㄥ垽鏂紝鐩存帴缁欑粨璁猴紝涓嶅爢閫夐」锛夛細
-- 涓汉宸ュ叿銆佸簱銆佽剼鏈€乻kill 鈫?**MIT**锛氭渶瀹芥澗锛屼繚鐣欑増鏉冨０鏄庡嵆鍙殢渚跨敤闅忎究鏀?
-- 娑夊強涓撳埄鎴栦紒涓氳儗鏅?鈫?**Apache 2.0**锛氱被浼?MIT锛岄澶栨湁涓撳埄鎺堟潈鏉℃
-- 鎯冲己鍒惰鐢熶綔鍝佸紑婧?鈫?**GPL v3**锛氫紶鏌撴€у紑婧愶紝鏀逛簡蹇呴』鍚屾牱寮€婧?
-- 鏂囨。銆佹暀绋嬨€佸垱鎰忓唴瀹?鈫?**CC BY-SA 4.0**锛氬唴瀹瑰崗璁紝闇€缃插悕涓斿悓鏍峰紑鏀?
+推荐逻辑（根据项目类型自动判断，直接给结论，不堆选项）：
+- 个人工具、库、脚本、skill → **MIT**：最宽松，保留版权声明即可随便用随便改
+- 涉及专利或企业背景 → **Apache 2.0**：类似 MIT，额外有专利授权条款
+- 想强制衍生作品开源 → **GPL v3**：传染性开源，改了必须同样开源
+- 文档、教程、创意内容 → **CC BY-SA 4.0**：内容协议，需署名且同样开放
 
-鎺ㄨ崘鏃跺彧璇翠竴鍙ヨ瘽锛?鏍规嵁浣犵殑椤圭洰鎯呭喌锛屾帹鑽?MIT鈥斺€旀渶瀹芥澗锛屼繚鐣欑増鏉冨０鏄庡嵆鍙殢渚跨敤闅忎究鏀广€傞渶瑕佹垜浠嬬粛鍏朵粬鍗忚渚涗綘鍙傝€冨悧锛?
-鐢ㄦ埛鎯充簡瑙ｅ啀灞曞紑锛屼笉鎯充簡瑙ｅ氨鐩存帴鐢ㄦ帹鑽愮殑銆?
+推荐时只说一句话："根据你的项目情况，推荐 MIT——最宽松，保留版权声明即可随便用随便改。需要我介绍其他协议供你参考吗？"
+用户想了解再展开，不想了解就直接用推荐的。
 
-鐢熸垚 LICENSE 鏂囦欢鏃讹紝MIT/Apache/GPL 浣跨敤鏍囧噯鏂囨湰锛屽～鍏ョ敤鎴峰悕鍜屽勾浠姐€?
-鍒囨崲浠撳簱鍏紑锛氱敤 `gh repo edit <owner>/<repo> --visibility public --accept-visibility-change-consequences`銆俫h CLI 鏈畨瑁?鏈璇佹椂鎸?[references/gh-cli-setup.md](references/gh-cli-setup.md) 鐨勬寜闇€寮曞娴佺▼鑷姩澶勭悊锛堣嚜鍔ㄥ畨瑁呪啋Device Flow 璁よ瘉鈫掓墽琛屾搷浣滐級銆?
+生成 LICENSE 文件时，MIT/Apache/GPL 使用标准文本，填入用户名和年份。
+切换仓库公开：用 `gh repo edit <owner>/<repo> --visibility public --accept-visibility-change-consequences`。gh CLI 未安装/未认证时按 [references/gh-cli-setup.md](references/gh-cli-setup.md) 的按需引导流程自动处理（自动安装→Device Flow 认证→执行操作）。
 
-## 寮€鍙戣褰曢挬瀛?
+## 开发记录钩子
 
-**浠呭湪鏈?Skill 宸叉縺娲伙紙姝ｅ湪鎵ц git/GitHub 鎿嶄綔锛夋椂鐢熸晥**锛屼笉鍦ㄧ函缂栫爜瀵硅瘽涓富鍔ㄥ脊鍑恒€?
+**仅在本 Skill 已激活（正在执行 git/GitHub 操作）时生效**，不在纯编码对话中主动弹出。
 
-鍦ㄤ互涓嬭妭鐐癸紙閫氬父鏄彁浜ゆ垨鎺ㄩ€佸畬鎴愭椂锛変富鍔ㄦ彁閱掔敤鎴?璁颁竴绗斿悧锛?锛岀敤鎴峰悓鎰忓悗杩藉姞鍒伴」鐩牴鐩綍 `DEVLOG.md`锛?
-- 瑙ｅ喅浜嗕竴涓鎵嬮棶棰橈紙鎺掓煡瓒呰繃3杞璇濄€佹垨娑夊強鍙嶇洿瑙夌殑鏍瑰洜锛?
-- 鍋氫簡鍏抽敭鎶€鏈喅绛栵紙閫夊瀷銆佹灦鏋勫彉鏇淬€佹斁寮冩煇涓柟妗堬級
-- 瀹屾垚浜嗕竴涓噸瑕侀噷绋嬬锛堟牳蹇冨姛鑳借窇閫氥€侀娆″彂甯冦€侀噸澶ч噸鏋勶級
-- 韪╀簡鏈変环鍊肩殑鍧戯紙鐜闂銆佸钩鍙伴檺鍒躲€佺涓夋柟鎺ュ彛鍙樻洿锛?
-- 鐢ㄦ埛涓诲姩琛ㄨ揪浜嗗鎬濆鎯虫垨浜у搧鎬濊€?
+在以下节点（通常是提交或推送完成时）主动提醒用户"记一笔吗？"，用户同意后追加到项目根目录 `DEVLOG.md`：
+- 解决了一个棘手问题（排查超过3轮对话、或涉及反直觉的根因）
+- 做了关键技术决策（选型、架构变更、放弃某个方案）
+- 完成了一个重要里程碑（核心功能跑通、首次发布、重大重构）
+- 踩了有价值的坑（环境问题、平台限制、第三方接口变更）
+- 用户主动表达了奇思妙想或产品思考
 
-璁板綍鏍煎紡锛堟瀬绠€锛屼竴鍙ヨ瘽鍗冲彲锛夛細
+记录格式（极简，一句话即可）：
 ```
-## YYYY-MM-DD [鏍囩] 绠€杩?
+## YYYY-MM-DD [标签] 简述
 
-- 鍙戠敓浜嗕粈涔堬紙1-3鍙ワ級
-- 涓轰粈涔堝€煎緱璁帮紙鍙€夛級
+- 发生了什么（1-3句）
+- 为什么值得记（可选）
 ```
-鏍囩锛歞ecision / problem / milestone / idea / pitfall / note
+标签：decision / problem / milestone / idea / pitfall / note
 
-涓嶅己鍒惰褰曪紝鐢ㄦ埛璇翠笉鐢ㄥ氨璺宠繃銆侱EVLOG.md 鎻愪氦鍒?GitHub锛堝睘浜庨」鐩枃妗ｏ級銆?
-濡傛灉 dev-journal skill 鍙敤锛岃褰曞悗鎻愮ず鐢ㄦ埛鍙互鐢ㄥ畠鍋氭洿璇︾粏鐨勬暣鐞嗘垨鍐呭鐢熸垚銆?
+不强制记录，用户说不用就跳过。DEVLOG.md 提交到 GitHub（属于项目文档）。
+如果 dev-journal skill 可用，记录后提示用户可以用它做更详细的整理或内容生成。
 
-## Skill 鑷墿灞?
+## Skill 自扩展
 
-鏈?Skill 鍙湪浣跨敤涓嚜鍔ㄥ畬鍠勩€傚綋閬囧埌鏈鐩栫殑鍦烘櫙鎴栫敤鎴锋彁鍑烘柊鐨勫崗浣滆鑼冩椂锛屾寜 [references/skill-evolution.md](references/skill-evolution.md) 鐨勬祦绋嬭嚜鍔ㄦ洿鏂版湰 Skill锛屾棤闇€鐢ㄦ埛鎵嬪姩缂栬緫銆傜敤鎴蜂篃鍙洿鎺ヨ"缁檚kill鍔犱釜瑙勫垯"鎴?鍥炴粴skill"銆?
+本 Skill 可在使用中自动完善。当遇到未覆盖的场景或用户提出新的协作规范时，按 [references/skill-evolution.md](references/skill-evolution.md) 的流程自动更新本 Skill，无需用户手动编辑。用户也可直接说"给skill加个规则"或"回滚skill"。
