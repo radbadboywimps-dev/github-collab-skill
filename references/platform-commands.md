@@ -22,6 +22,17 @@ SKILL.md 中只写逻辑，平台相关命令查此表。AI 根据当前操作�
 - macOS: `brew install git`
 - Linux: `sudo apt install git`（Debian/Ubuntu）或 `sudo yum install git`（CentOS/RHEL）
 
+## gh CLI 可执行文件检测
+
+按优先级查找（懒加载，需要时才检测）：
+
+| 优先级 | Windows | macOS | Linux |
+|--------|---------|-------|-------|
+| 1 | PATH 中的 `gh`（`gh --version`） | 同左 | 同左 |
+| 2 | `~\gh-cli\bin\gh.exe`（便携版） | `/opt/homebrew/bin/gh` | `/usr/bin/gh` |
+| 3 | `~\.gh-cli\bin\gh.exe`（旧便携版） | `/usr/local/bin/gh` | `/usr/local/bin/gh` |
+| 4 | `C:\Program Files\GitHub CLI\gh.exe` | — | — |
+
 ## 网络探测（github.com:443，3 秒超时）
 
 ### Windows PowerShell

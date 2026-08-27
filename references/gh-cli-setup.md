@@ -14,12 +14,17 @@ gh CLI 是 MCP 的兜底通道，用于 MCP 不支持的操作：
 ## 按需引导流程（MCP 不支持某操作时执行）
 
 ```
-1. gh --version 检查是否已安装
-   ├─ 已安装 → 跳到步骤 3
-   └─ 未安装 → 步骤 2
+1. 检测 gh 是否已安装（不能只试 PATH，要检查非标准路径）
+   ├─ 先试 gh --version
+   ├─ 不可用则按平台查找常见路径：
+   │   Windows: ~/gh-cli/bin/gh.exe、~/.gh-cli/bin/gh.exe、C:\Program Files\GitHub CLI\gh.exe
+   │   macOS:   /opt/homebrew/bin/gh、/usr/local/bin/gh
+   │   Linux:   /usr/bin/gh、/usr/local/bin/gh
+   ├─ 在非标准路径找到 → 加入当前会话 PATH，跳到步骤 3
+   └─ 完全找不到 → 步骤 2
 
 2. 自动下载安装（对用户透明，无需手动操作）
-   ├─ Windows：优先 winget，失败则下载便携版到 ~/.gh-cli/ 并加入 PATH
+   ├─ Windows：优先 winget，失败则下载便携版到 ~/gh-cli/ 并加入 PATH
    ├─ macOS：brew install gh
    └─ Linux：apt/官方仓库安装
    安装耗时约 10-30 秒，告知用户"正在安装 GitHub CLI..."
@@ -60,7 +65,7 @@ $asset = $release.assets | Where-Object { $_.name -match "windows_amd64.zip$" } 
 Invoke-WebRequest -Uri $asset.browser_download_url -OutFile "$ghDir\gh.zip" -UseBasicParsing
 Expand-Archive -Path "$ghDir\gh.zip" -DestinationPath $ghDir -Force
 Remove-Item "$ghDir\gh.zip"
-# 加入用户 PATH（永久）
+# 加入用户 PATH（永久）和当前会话 PATH
 $binDir = (Get-ChildItem -Path $ghDir -Recurse -Filter "gh.exe").Directory.FullName
 $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($currentPath -notlike "*$binDir*") {
