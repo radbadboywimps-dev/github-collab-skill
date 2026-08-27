@@ -8,7 +8,7 @@ dist/
 build/
 *.egg
 
-# Skill backups（本地备份，不提交）
+# Skill backups (local only, never commit)
 backups/
 
 # IDE

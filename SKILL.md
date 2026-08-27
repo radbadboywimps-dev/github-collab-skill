@@ -1,6 +1,6 @@
 ---
 name: github-collab
-version: 1.0.0
+version: 1.3.0
 description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
@@ -13,6 +13,12 @@ description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互
 
 ## 启动检查（执行 git/GitHub 操作前）
 
+0. **环境准备**（每个会话首次执行 git 操作时）：
+   - 检测 git 是否可用：先试 `git --version`，不可用则按平台查找常见安装路径（详见 [references/platform-commands.md](references/platform-commands.md) 的 git 路径表）
+   - 找到便携版 git 时，将其目录加入当前会话 PATH（不修改系统环境变量）
+   - 找不到 git → 引导安装（Windows: winget 或便携版；macOS: `brew install git`；Linux: `apt/yum install git`）
+   - Windows PowerShell 下设置 `$env:GIT_REDIRECT_STDERR = '2>&1'`，消除 git 进度信息导致的红色错误显示
+   - 检测结果在当前会话缓存，不重复检测
 1. 确定工作目录：用户指定的项目路径，或当前对话中正在操作的目录
 2. 检查是否为 git 仓库：
    - 不是 → 询问用户是否初始化（走"新项目初始化"流程）
@@ -24,7 +30,7 @@ description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互
    - 有 → 读取并遵循其中的项目约定
    - 没有且走完整流程 → 扫描项目结构，按 [references/agents-template.md](references/agents-template.md) 生成一份，展示给用户确认后写入
    - 没有且走简单流程 → 不主动生成，等用户要求或项目变复杂时再说
-5. 如果是已有仓库，开始工作前先 `git pull` 拉取最新代码（简单流程下静默执行，失败不阻塞）
+5. 如果是已有仓库，开始工作前先 `git pull` 拉取最新代码（简单流程下静默执行，失败不阻塞）。如果本地与远程因 MCP 上传而分叉，按"本地与远程历史分叉"章节处理
 
 ## 工具分工
 
@@ -180,26 +186,28 @@ fix: 修复CCTV m3u8地址解析失败的问题
    - `Connection was reset` / `Could not resolve host` / `Failed to connect` / `Recv failure` → 网络问题
    - `403` / `Authentication failed` → 认证问题（走下方认证排查）
 
-2. **立即降级到 MCP，逐批上传并探测网络恢复**：
+2. **MCP 降级上传前，先确保本地改动已提交**：
+   - `git status --porcelain` 检查未提交改动
+   - 有未提交改动 → 先 `git add` + `git commit`（或 stash），确保 MCP 上传的内容与本地一致
+   - 这一步保证后续同步时不会丢失任何内容
+
+3. **立即降级到 MCP，逐批上传并探测网络恢复**：
    - 用 `git diff --name-only HEAD~1`（或对比远程）列出所有需要上传的文件
    - 将文件分批（每批 3-5 个，大文件单独一批），用 MCP `push_files` 逐批上传
-   - **每批上传完成后，做一次快速网络探测**（`Test-NetConnection github.com -Port 443 -WarningAction SilentlyContinue`，超时 3 秒）：
+   - **每批上传完成后，做一次快速网络探测**（3 秒超时，跨平台命令见 [references/platform-commands.md](references/platform-commands.md)）：
      - 网络恢复 → 剩余文件立即切回本地 `git push`，一次推完，不再走 MCP
      - 仍不通 → 提醒一次"本地网络仍不通，建议检查 VPN/代理设置"，然后继续 MCP 上传下一批（不重复提醒）
    - 已存在于远程的文件需先 `get_file_contents` 获取 sha 再更新
    - **不要留"等网络恢复再传"的尾巴，所有文件必须在本次任务中传完**
 
-3. **上传后校验**：用 MCP `get_file_contents` 抽查关键文件大小与本地一致
+4. **上传后校验**：用 MCP `get_file_contents` 抽查关键文件大小与本地一致
 
-4. **本地分叉同步（agent 自行处理，不打扰用户）**：
-   - 同步前先检查未提交改动：`git status --porcelain`，如果有则先 `git stash push -u -m "auto-stash before sync"`
-   - 再执行 `git fetch origin && git reset --hard origin/main`
-   - 如果之前 stash 了，执行 `git stash pop` 恢复未提交改动
-   - 如果网络仍不通，不重试、不等待、不告诉用户"下次执行xxx"——在下次有 git 操作时自然同步即可
-   - 禁止 force push
+5. **MCP 上传后不立即 reset，标记为待同步**：
+   - 不强制 `fetch + reset`，避免在网络不稳定时反复操作
+   - 下次有 git 操作时（启动检查第 5 步 pull），按"本地与远程历史分叉"章节自然同步
 
-5. **主动诊断网络并给建议**（首次失败时，不重复）：
-   - 检测 DNS 解析、443 端口连通性、系统代理设置、常见代理端口
+6. **主动诊断网络并给建议**（首次失败时，不重复）：
+   - 检测 DNS 解析、443 端口连通性、系统代理设置、常见代理端口（跨平台命令见 [references/platform-commands.md](references/platform-commands.md)）
    - 如果发现本地有代理软件在运行，建议配置 git 代理：`git config --global http.proxy http://127.0.0.1:端口`
    - 如果完全没有代理，告知用户 GitHub 在国内访问不稳定，MCP 通道不受影响可继续使用
 
@@ -213,18 +221,23 @@ fix: 修复CCTV m3u8地址解析失败的问题
 3. 引导用户完成认证：GCM 会弹出浏览器 OAuth 授权；无 GUI 环境用 Personal Access Token
 4. 认证完成后重试；如果用户不想配置认证，直接用 MCP 完成上传，不阻塞任务
 
-### Windows PowerShell 注意事项
-- git 的进度信息输出到 stderr，不代表命令失败
-- 判断成功要看输出内容（`-> main`、`up to date`、`[new branch]`）和 `$LASTEXITCODE -eq 0`
-- 不要因 stderr 有输出就判定失败
+### 命令执行注意事项
+- 判断 git 命令成功/失败只看 `$LASTEXITCODE -eq 0`（Windows）或 `$? -eq 0`（bash），不依赖输出内容或颜色
+- Windows PowerShell 下启动检查已设置 `$env:GIT_REDIRECT_STDERR = '2>&1'`，git 进度信息不再显示为红色错误
+- 未设置该环境变量时，git 的进度信息输出到 stderr 不代表失败，不要因此判定命令失败
 
 ### 本地与远程历史分叉
-当本地 commit 通过 MCP 推送到远程后（SHA 不同），本地 git 历史与远程分叉：
-- 不要 force push
-- 同步前先 `git status --porcelain` 检查未提交改动，有则先 stash
-- 再 `git fetch origin && git reset --hard origin/main` 对齐远程，最后 stash pop 恢复
-- 网络不通则跳过，下次有 git 操作时自然同步，不告知用户执行任何命令
-- 如果本地有 MCP 未上传的 commit，先 `git format-patch` 备份再 reset，之后 `git am` 恢复
+当本地 commit 通过 MCP 推送到远程后（SHA 不同），本地 git 历史与远程分叉。在下次有 git 操作时自然同步：
+
+1. 先 `git status --porcelain` 检查未提交改动，有则先 stash
+2. `git fetch origin`
+3. 判断本地是否有远程没有的 commit：`git log origin/main..HEAD --oneline`
+   - **没有额外 commit**（本地 commit 内容已通过 MCP 上传）→ `git reset --hard origin/main`（安全，内容一致只是 SHA 不同）
+   - **有额外 commit**（MCP 上传后又有新提交）→ `git rebase origin/main`（把新 commit 重放到远程之上）
+4. 如果之前 stash 了，`git stash pop` 恢复
+5. rebase 冲突时停止并告知用户冲突文件，不强制处理
+6. 网络不通则跳过，下次有 git 操作时再同步，不告知用户执行任何命令
+7. 禁止 force push
 
 ## 撤销与回退
 
