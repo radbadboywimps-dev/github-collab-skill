@@ -118,12 +118,37 @@ fix: 修复CCTV m3u8地址解析失败的问题
 
 ## 故障降级与恢复
 
+### 核心原则
+- **任务必须完成，不留尾巴**：降级到 MCP 后，把所有待上传文件一次性传完，不要只传一部分然后说"等网络恢复"
+- **本地同步是 agent 的事，不是用户的待办**：不要让用户手动执行 fetch+reset
+- **主动诊断，不要机械重试**：网络失败时分析原因（DNS/端口/代理），给用户可行建议
+- **Skill 规则是指导不是枷锁**：根据实际情况灵活决策，不要被框架卡死导致降智
+
 ### 本地 git push 网络失败
 当 `git push` 因网络问题失败（连接超时、连接重置、无法解析 host、443 端口不通）时：
-1. 确认是网络问题而非认证问题（检查报错信息含 `Connection was reset` / `Could not resolve host` / `Failed to connect` / `Recv failure`）
-2. 降级到 MCP `push_files` 批量上传本次改动的文件（不要逐文件 `create_or_update_file`）
-3. 上传后用 MCP `get_file_contents` 校验关键文件大小与本地一致
-4. 告知用户：本地 commit 仍在，网络恢复后需在项目目录执行 `git fetch origin && git reset --hard origin/main` 同步（本地未推送的 commit 会被远程版本替代，因内容一致无损失）
+
+1. **确认失败类型**：检查报错信息
+   - `Connection was reset` / `Could not resolve host` / `Failed to connect` / `Recv failure` → 网络问题
+   - `403` / `Authentication failed` → 认证问题（走下方认证排查）
+
+2. **立即降级到 MCP，一口气传完所有待上传文件**：
+   - 用 `git diff --name-only HEAD~1`（或对比远程）列出所有需要上传的文件
+   - 用 MCP `push_files` 批量上传，不要逐文件 `create_or_update_file`
+   - 如果文件数多，分多次 push_files，每次传一批，直到全部传完
+   - 已存在于远程的文件需先 `get_file_contents` 获取 sha 再更新
+   - **不要留"等网络恢复再传"的尾巴**
+
+3. **上传后校验**：用 MCP `get_file_contents` 抽查关键文件大小与本地一致
+
+4. **本地分叉同步（agent 自行处理，不打扰用户）**：
+   - 立即尝试 `git fetch origin && git reset --hard origin/main`
+   - 如果网络仍不通，不重试、不等待、不告诉用户"下次执行xxx"——在下次有 git 操作时自然同步即可
+   - 禁止 force push
+
+5. **主动诊断网络并给建议**（首次失败时，不重复）：
+   - 检测 DNS 解析、443 端口连通性、系统代理设置、常见代理端口
+   - 如果发现本地有代理软件在运行，建议配置 git 代理：`git config --global http.proxy http://127.0.0.1:端口`
+   - 如果完全没有代理，告知用户 GitHub 在国内访问不稳定，MCP 通道不受影响可继续使用
 
 ### 认证失败
 当 git 操作返回 403/Authentication failed：
@@ -133,7 +158,7 @@ fix: 修复CCTV m3u8地址解析失败的问题
    - Linux：应为 `libsecret` 或 `store`
 2. 未配置则设置对应 helper
 3. 引导用户完成认证：GCM 会弹出浏览器 OAuth 授权；无 GUI 环境用 Personal Access Token
-4. 认证完成后重试
+4. 认证完成后重试；如果用户不想配置认证，直接用 MCP 完成上传，不阻塞任务
 
 ### Windows PowerShell 注意事项
 - git 的进度信息输出到 stderr，不代表命令失败
@@ -143,7 +168,8 @@ fix: 修复CCTV m3u8地址解析失败的问题
 ### 本地与远程历史分叉
 当本地 commit 通过 MCP 推送到远程后（SHA 不同），本地 git 历史与远程分叉：
 - 不要 force push
-- 用 `git fetch origin && git reset --hard origin/main` 对齐远程
+- 立即尝试 `git fetch origin && git reset --hard origin/main` 对齐远程
+- 网络不通则跳过，下次有 git 操作时自然同步，不告知用户执行任何命令
 - 如果本地有 MCP 未上传的 commit，先 `git format-patch` 备份再 reset，之后 `git am` 恢复
 
 ## 撤销与回退
