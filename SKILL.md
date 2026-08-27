@@ -1,11 +1,16 @@
 ---
 name: github-collab
-description: 标准化GitHub协作开发流程。当用户进行软件开发、写代码、提交代码、推送、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退代码、暂存改动、解决冲突、初始化项目等任务时使用。触发词包括但不限于：开发、写代码、改代码、提交、推送、推上去、建仓库、建分支、提PR、合并、发版、release、打tag、issue、bug、代码审查、git、撤销、回退、stash、冲突、clone、fork。
+description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为——这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
 # GitHub 协作流程
 
-## 启动检查（每次触发时自动执行）
+## 触发边界
+
+**只在用户明确要做 git/GitHub 操作时介入**（提交、推送、建仓库、分支、PR、发版、回退、同步等）。
+纯编码、调试、重构、写测试、读代码、技术讨论时**不触发、不检查、不打扰**。
+
+## 启动检查（执行 git/GitHub 操作前）
 
 1. 确定工作目录：用户指定的项目路径，或当前对话中正在操作的目录
 2. 检查是否为 git 仓库：
@@ -106,6 +111,11 @@ fix: 修复CCTV m3u8地址解析失败的问题
 4. 生成 AGENTS.md（按 [references/agents-template.md](references/agents-template.md)）
 5. 初始提交：`git add . && git commit -m "chore: 初始化项目"`
 6. 关联远程并推送：`git remote add origin <url> && git push -u origin main`
+7. **首次推送成功后，询问用户是否公开仓库**：
+   - 告知仓库地址，说明当前为私有
+   - 问："要不要公开？公开后任何人都能查看和使用你的代码，同时需要配置开源协议（license）。"
+   - 如果用户选择公开：根据项目类型推荐 license（见下方 License 章节），用户确认后生成 LICENSE 文件、提交推送、将仓库切换为公开
+   - 如果用户选择暂不公开：保持私有，以后随时可以说"公开仓库"触发此流程
 
 ## 安全红线
 
@@ -131,12 +141,14 @@ fix: 修复CCTV m3u8地址解析失败的问题
    - `Connection was reset` / `Could not resolve host` / `Failed to connect` / `Recv failure` → 网络问题
    - `403` / `Authentication failed` → 认证问题（走下方认证排查）
 
-2. **立即降级到 MCP，一口气传完所有待上传文件**：
+2. **立即降级到 MCP，逐批上传并探测网络恢复**：
    - 用 `git diff --name-only HEAD~1`（或对比远程）列出所有需要上传的文件
-   - 用 MCP `push_files` 批量上传，不要逐文件 `create_or_update_file`
-   - 如果文件数多，分多次 push_files，每次传一批，直到全部传完
+   - 将文件分批（每批 3-5 个，大文件单独一批），用 MCP `push_files` 逐批上传
+   - **每批上传完成后，做一次快速网络探测**（`Test-NetConnection github.com -Port 443 -WarningAction SilentlyContinue`，超时 3 秒）：
+     - 网络恢复 → 剩余文件立即切回本地 `git push`，一次推完，不再走 MCP
+     - 仍不通 → 提醒一次"本地网络仍不通，建议检查 VPN/代理设置"，然后继续 MCP 上传下一批（不重复提醒）
    - 已存在于远程的文件需先 `get_file_contents` 获取 sha 再更新
-   - **不要留"等网络恢复再传"的尾巴**
+   - **不要留"等网络恢复再传"的尾巴，所有文件必须在本次任务中传完**
 
 3. **上传后校验**：用 MCP `get_file_contents` 抽查关键文件大小与本地一致
 
@@ -193,9 +205,27 @@ fix: 修复CCTV m3u8地址解析失败的问题
 - 打 tag：`git tag v1.2.3 && git push origin v1.2.3`
 - 通过 MCP 创建 GitHub Release，附 changelog（基于 commit 历史生成）
 
+## License
+
+公开仓库必须配置 LICENSE。私有仓库不需要。
+
+推荐逻辑（根据项目类型自动判断，直接给结论，不堆选项）：
+- 个人工具、库、脚本、skill → **MIT**：最宽松，保留版权声明即可随便用随便改
+- 涉及专利或企业背景 → **Apache 2.0**：类似 MIT，额外有专利授权条款
+- 想强制衍生作品开源 → **GPL v3**：传染性开源，改了必须同样开源
+- 文档、教程、创意内容 → **CC BY-SA 4.0**：内容协议，需署名且同样开放
+
+推荐时只说一句话："根据你的项目情况，推荐 MIT——最宽松，保留版权声明即可随便用随便改。需要我介绍其他协议供你参考吗？"
+用户想了解再展开，不想了解就直接用推荐的。
+
+生成 LICENSE 文件时，MIT/Apache/GPL 使用标准文本，填入用户名和年份。
+切换仓库公开：通过 MCP 更新仓库 visibility；MCP 不支持时给用户 GitHub 设置页链接。
+
 ## 开发记录钩子
 
-在以下节点主动提醒用户"记一笔吗？"，用户同意后追加到项目根目录 `DEVLOG.md`：
+**仅在本 Skill 已激活（正在执行 git/GitHub 操作）时生效**，不在纯编码对话中主动弹出。
+
+在以下节点（通常是提交或推送完成时）主动提醒用户"记一笔吗？"，用户同意后追加到项目根目录 `DEVLOG.md`：
 - 解决了一个棘手问题（排查超过3轮对话、或涉及反直觉的根因）
 - 做了关键技术决策（选型、架构变更、放弃某个方案）
 - 完成了一个重要里程碑（核心功能跑通、首次发布、重大重构）
