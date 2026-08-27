@@ -191,7 +191,9 @@ fix: 修复CCTV m3u8地址解析失败的问题
 3. **上传后校验**：用 MCP `get_file_contents` 抽查关键文件大小与本地一致
 
 4. **本地分叉同步（agent 自行处理，不打扰用户）**：
-   - 立即尝试 `git fetch origin && git reset --hard origin/main`
+   - 同步前先检查未提交改动：`git status --porcelain`，如果有则先 `git stash push -u -m "auto-stash before sync"`
+   - 再执行 `git fetch origin && git reset --hard origin/main`
+   - 如果之前 stash 了，执行 `git stash pop` 恢复未提交改动
    - 如果网络仍不通，不重试、不等待、不告诉用户"下次执行xxx"——在下次有 git 操作时自然同步即可
    - 禁止 force push
 
@@ -218,7 +220,8 @@ fix: 修复CCTV m3u8地址解析失败的问题
 ### 本地与远程历史分叉
 当本地 commit 通过 MCP 推送到远程后（SHA 不同），本地 git 历史与远程分叉：
 - 不要 force push
-- 立即尝试 `git fetch origin && git reset --hard origin/main` 对齐远程
+- 同步前先 `git status --porcelain` 检查未提交改动，有则先 stash
+- 再 `git fetch origin && git reset --hard origin/main` 对齐远程，最后 stash pop 恢复
 - 网络不通则跳过，下次有 git 操作时自然同步，不告知用户执行任何命令
 - 如果本地有 MCP 未上传的 commit，先 `git format-patch` 备份再 reset，之后 `git am` 恢复
 
