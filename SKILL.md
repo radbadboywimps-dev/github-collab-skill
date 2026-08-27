@@ -167,6 +167,25 @@ fix: 修复CCTV m3u8地址解析失败的问题
 - 打 tag：`git tag v1.2.3 && git push origin v1.2.3`
 - 通过 MCP 创建 GitHub Release，附 changelog（基于 commit 历史生成）
 
+## 开发记录钩子
+
+在以下节点主动提醒用户"记一笔吗？"，用户同意后追加到项目根目录 `DEVLOG.md`：
+- 解决了一个棘手问题（排查超过3轮对话、或涉及反直觉的根因）
+- 做了关键技术决策（选型、架构变更、放弃某个方案）
+- 完成了一个重要里程碑（核心功能跑通、首次发布、重大重构）
+- 踩了有价值的坑（环境问题、平台限制、第三方接口变更）
+- 用户主动表达了奇思妙想或产品思考
+
+记录格式（极简，一句话即可）：
+```
+## YYYY-MM-DD [标签]
+一句话记录发生了什么、为什么值得记。
+```
+标签：decision / problem / milestone / idea / pitfall
+
+不强制记录，用户说不用就跳过。DEVLOG.md 提交到 GitHub（属于项目文档）。
+如果 dev-journal skill 可用，记录后提示用户可以用它做更详细的整理或内容生成。
+
 ## Skill 自扩展
 
 本 Skill 可在使用中自动完善。当遇到未覆盖的场景或用户提出新的协作规范时，按 [references/skill-evolution.md](references/skill-evolution.md) 的流程自动更新本 Skill，无需用户手动编辑。用户也可直接说"给skill加个规则"或"回滚skill"。
