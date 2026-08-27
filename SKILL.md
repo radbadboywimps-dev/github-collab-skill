@@ -1,6 +1,6 @@
 ---
 name: github-collab
-version: 1.6.0
+version: 1.6.1
 description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、备注版本号、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
@@ -299,6 +299,7 @@ MAJOR.MINOR.PATCH（如 1.2.3）：
 
 - MINOR/MAJOR 发 Release 时，从 commit 历史自动生成 release notes（上次 tag 到现在的 commit）
 - 用 gh CLI 创建：`gh release create <tag> --title "<tag>" --notes "<notes>"`
+- **Windows PowerShell 注意**：多行字符串传给 `--notes` 会解析失败，必须先写入临时文件再用 `--notes-file <file>`
 - gh CLI 不可用时按 [references/gh-cli-setup.md](references/gh-cli-setup.md) 引导
 - 私有仓库发 Release 后提醒一句"私有仓库 Release 只有协作者可见，要公开吗？"（不强制）
 
