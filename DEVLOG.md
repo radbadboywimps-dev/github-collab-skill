@@ -33,3 +33,10 @@
 - 踩坑：`gh auth login --web` 在 agent 后台环境中会卡死（等待交互式 Enter），改用直接调用 GitHub Device Flow API 获取验证码，轮询拿 token 后 `gh auth login --with-token` 写入 keyring
 - 新增 references/gh-cli-setup.md：安装（winget+便携版降级）、Device Flow 认证脚本、常用命令、三通道分工
 - 三通道体系成型：本地 git（提交/分支）→ MCP（建仓库/PR/Issue/搜索）→ gh CLI（仓库设置/Release附件/CI/API直通）
+
+## 2026-08-27 [decision] gh CLI改为懒加载，不在启动时检查安装
+
+- 原设计把 gh CLI 作为第三通道，但没有明确什么时候安装和认证，可能导致 skill 启动时就检查 gh，打扰不需要的用户
+- 改为懒加载：只有 MCP 不支持某操作时才自动下载安装 gh，安装对用户透明；认证是唯一需要用户介入的环节，且验证码与操作目标直接关联（如"公开仓库需要授权"）
+- 用户拒绝认证时回退到手动操作指引，不阻塞任务
+- gh-cli-setup.md 新增完整的按需引导流程图
