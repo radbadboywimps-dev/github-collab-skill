@@ -89,6 +89,7 @@ git log origin/main..HEAD --oneline
 $content = Get-Content $path -Raw
 [System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))
 ```
+**警告**：不要用 `Set-Content -Encoding UTF8`——PowerShell 5.x 会写入 UTF-8 BOM 且可能损坏中文。修改含中文的文件优先用 Edit 工具，或用 .NET 的 `WriteAllText`。
 
 ### macOS / Linux (bash)
 ```bash
