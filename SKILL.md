@@ -1,7 +1,7 @@
 ---
 name: github-collab
-version: 1.4.0
-description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
+version: 1.4.1
+description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、备注版本号、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
 # GitHub 协作流程
@@ -269,18 +269,33 @@ MAJOR.MINOR.PATCH（如 1.2.3）：
 - 没有历史 tag 时，从 v0.1.0 开始
 - 用户说"关闭自动打 tag"则停止，并更新 AGENTS.md
 
+### 首次手动打 tag 或发版后询问
+用户第一次手动说"备注个版本号""打 tag""发版""发 release"时：
+1. 执行用户要求的操作（打 tag 或发 Release）
+2. 操作成功后问一句："以后每次 push 自动打 tag 吗？"
+3. 用户同意 → 在 AGENTS.md 记录 `自动打tag：是`，后续自动执行
+4. 用户拒绝 → 不再问，以后需要时手动说
+5. 已经问过（无论同意还是拒绝）→ 不再重复问
+
 ### 发 Release（用户明确要求时）
 用户说"发 release""发版"时执行：
 1. 基于最新 tag（没有则先按 PATCH 打 tag）
 2. 从 commit 历史生成 release notes（上次 tag 到现在的 commit）
 3. 用 gh CLI 创建 Release：`gh release create <tag> --title "<tag>" --notes "<notes>"`
 4. gh CLI 不可用时按 [references/gh-cli-setup.md](references/gh-cli-setup.md) 引导
+5. 如果是私有仓库，发完后可提醒一句"Release 在私有仓库只有协作者可见，要公开仓库吗？"（不强制）
 
 ### 手动升版本
 用户说"升个 minor 版""升大版本"时：
 - MINOR：PATCH 归零，MINOR +1（如 1.3.1 → 1.4.0），打 tag
 - MAJOR：MINOR 和 PATCH 归零，MAJOR +1（如 1.4.0 → 2.0.0），打 tag
 - 升版本后是否发 Release 由用户决定
+
+### 询问排序原则
+一次只问一个问题，按时间线自然触发，不堆叠：
+1. 首次推送 + 私有仓库 → 问"要不要公开？" → 公开则推荐 license
+2. 首次手动打 tag/发版 → 问"以后自动打 tag 吗？"
+3. 已问过的问题不重复问，答案记到 AGENTS.md
 
 ## License
 
