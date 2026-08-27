@@ -57,3 +57,11 @@
 - 用户说"直接上传"走简单流程，但安全检查（密钥/大文件/.env）始终静默执行——"直接"是少废话不是少安全
 - 简单流程下不主动生成AGENTS.md，不强制pull（失败不阻塞）
 - 踩坑：MCP上传后本地分叉，git reset --hard同步远程时覆盖了未提交的P1改动，只能重新应用——教训：同步前先stash或commit本地改动
+## 2026-08-28 [milestone] v1.3.0 六项体验改进
+
+- git自动检测：启动时按优先级查找git路径（PATH→Program Files→便携版），加入当前会话PATH，不再每次手动拼路径
+- stderr修复：PowerShell下设置GIT_REDIRECT_STDERR=2>&1，git push不再显示红色错误
+- .gitignore编码修复：中文注释乱码改为英文，UTF-8无BOM写入
+- 分叉同步改进：MCP上传前先commit本地改动；上传后不立即reset，下次git操作时自然同步；本地有额外commit时用rebase而非reset
+- 网络探测加速：Test-NetConnection替换为.NET TcpClient+3秒超时，实测92ms返回（之前DNS失败时卡10秒+）
+- 多系统适配：新建references/platform-commands.md，覆盖Windows/macOS/Linux的git检测、网络探测、大文件检查、代理检测命令
