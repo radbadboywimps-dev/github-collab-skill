@@ -25,3 +25,11 @@
 - 故障降级章节新增核心原则："Skill 规则是指导不是枷锁"
 - 网络失败时要主动诊断原因（DNS/端口/代理）并给建议，不能机械重试或干等
 - 任务必须完成不留尾巴，本地分叉同步是 agent 的事不是用户的待办
+
+## 2026-08-27 [milestone] github-collab-skill 首次公开 + gh CLI 第三通道打通
+
+- 仓库从私有切换为公开：https://github.com/radbadboywimps-dev/github-collab-skill
+- MCP 不支持改仓库可见性，安装了 gh CLI v2.98.0 并通过 OAuth Device Flow 完成认证
+- 踩坑：`gh auth login --web` 在 agent 后台环境中会卡死（等待交互式 Enter），改用直接调用 GitHub Device Flow API 获取验证码，轮询拿 token 后 `gh auth login --with-token` 写入 keyring
+- 新增 references/gh-cli-setup.md：安装（winget+便携版降级）、Device Flow 认证脚本、常用命令、三通道分工
+- 三通道体系成型：本地 git（提交/分支）→ MCP（建仓库/PR/Issue/搜索）→ gh CLI（仓库设置/Release附件/CI/API直通）
