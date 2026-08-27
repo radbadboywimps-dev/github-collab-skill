@@ -23,7 +23,8 @@
 2. 备份当前版本到 `backups/SKILL-YYYYMMDD-HHMM.md`（同时备份被修改的 references 文件）
 3. 在内存中修改内容
 4. 自检：
-   - YAML frontmatter 格式是否正确（name、description 字段完整）
+   - YAML frontmatter 格式是否正确（name、version、description 字段完整）
+   - 版本号是否按规则递增
    - 新规则是否与现有规则矛盾（如"禁止直接推main" vs "可以直接推main"）
    - 章节结构是否完整，有无断裂
    - 引用的 references 文件路径是否存在
@@ -39,6 +40,22 @@
 - 删除已有规则
 - 改变默认行为（如从"必须PR"改为"可以直接推main"）
 - 新增需要用户安装额外工具的流程（如 Git LFS、CI/CD）
+
+## 版本管理
+
+SKILL.md frontmatter 中的 `version` 字段遵循语义化版本（MAJOR.MINOR.PATCH）：
+
+- **PATCH**（1.0.0 → 1.0.1）：修 bug、措辞修正、小调整，不改变行为（如修复 reset 前未 stash 的问题）
+- **MINOR**（1.0.0 → 1.1.0）：新增功能、新规则、新 references 文件，向后兼容（如新增流程分级、gh CLI 通道）
+- **MAJOR**（1.0.0 → 2.0.0）：不兼容的重大变更，改变已有行为（如默认流程从完整改为简单、删除安全规则）
+
+每次自动更新 Skill 时：
+1. 根据变更性质决定版本号递增位
+2. 更新 SKILL.md frontmatter 的 version
+3. 在 DEVLOG 中记录版本变更
+4. 提交信息中标注版本号，如 `feat: 流程分级 (v1.1.0)`
+
+重大版本（MAJOR）变更需用户确认（与"重大变更需确认"流程一致）。
 
 ## 回滚机制
 

@@ -1,6 +1,7 @@
 ---
 name: github-collab
-description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
+version: 1.0.0
+description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
 # GitHub 协作流程
