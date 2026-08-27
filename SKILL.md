@@ -1,6 +1,6 @@
 ---
 name: github-collab
-version: 1.4.1
+version: 1.5.0
 description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、备注版本号、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
@@ -104,7 +104,7 @@ fix: 修复CCTV m3u8地址解析失败的问题
 2. `git add` 暂存改动
 3. `git commit -m "规范的commit message"`
 4. `git push`
-5. 如果 AGENTS.md 中启用了自动打 tag，按"版本发布"章节自动递增 PATCH 打 tag
+5. 按"版本发布"章节自动处理 tag 和 Release（版本号文件变更则自动打 tag，MINOR/MAJOR 自动发 Release）
 6. 推送成功后简短报告
 
 ### 完整流程
@@ -128,7 +128,7 @@ fix: 修复CCTV m3u8地址解析失败的问题
 
 #### 推送与合并
 1. `git push -u origin <分支名>`
-2. 如果 AGENTS.md 中启用了自动打 tag，按"版本发布"章节自动递增 PATCH 打 tag
+2. 合并到 main 后，按"版本发布"章节自动处理 tag 和 Release
 3. 通过 MCP 创建 Pull Request
 3. PR 描述包含：改了什么、为什么、怎么验证的
 4. 合并前过一遍下方自查清单
@@ -261,41 +261,43 @@ MAJOR.MINOR.PATCH（如 1.2.3）：
 - MINOR：新功能，向后兼容
 - MAJOR：不兼容的重大变更
 
-### 自动打 tag（需用户启用）
-用户说过一次"以后自动打 tag"后，在 AGENTS.md 协作设置中记录 `自动打tag：是`。之后：
-- 每次 `git push` 成功后，自动取最新 tag 的 PATCH +1
-- `git tag -a vX.Y.Z+1 -m "auto: vX.Y.Z+1"` 并 `git push origin vX.Y.Z+1`
-- 只打 tag，不发 Release
-- 没有历史 tag 时，从 v0.1.0 开始
-- 用户说"关闭自动打 tag"则停止，并更新 AGENTS.md
+### tag 与 version 自动匹配（无需询问）
 
-### 首次手动打 tag 或发版后询问
-用户第一次手动说"备注个版本号""打 tag""发版""发 release"时：
-1. 执行用户要求的操作（打 tag 或发 Release）
-2. 操作成功后问一句："以后每次 push 自动打 tag 吗？"
-3. 用户同意 → 在 AGENTS.md 记录 `自动打tag：是`，后续自动执行
-4. 用户拒绝 → 不再问，以后需要时手动说
-5. 已经问过（无论同意还是拒绝）→ 不再重复问
+**有版本号文件的项目**（SKILL.md frontmatter version、package.json、Cargo.toml、pyproject.toml、setup.py 等）：
+- 每次 `git push` 后，检查本次提交是否修改了版本号文件
+- 如果版本号变了，自动打对应 tag 并推送：`git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`
+- 版本号没变 → 不打 tag
+- 无需用户配置或确认，版本号变更即触发
 
-### 发 Release（用户明确要求时）
-用户说"发 release""发版"时执行：
-1. 基于最新 tag（没有则先按 PATCH 打 tag）
-2. 从 commit 历史生成 release notes（上次 tag 到现在的 commit）
-3. 用 gh CLI 创建 Release：`gh release create <tag> --title "<tag>" --notes "<notes>"`
-4. gh CLI 不可用时按 [references/gh-cli-setup.md](references/gh-cli-setup.md) 引导
-5. 如果是私有仓库，发完后可提醒一句"Release 在私有仓库只有协作者可见，要公开仓库吗？"（不强制）
+**没有版本号文件的项目**：
+- 用户说"以后自动打 tag"后启用，在 AGENTS.md 记录 `自动打tag：是`
+- 每次 push 后取最新 tag 的 PATCH +1 打 tag
+- 没有历史 tag 时从 v0.1.0 开始
+- 用户说"关闭自动打 tag"则停止
 
-### 手动升版本
-用户说"升个 minor 版""升大版本"时：
-- MINOR：PATCH 归零，MINOR +1（如 1.3.1 → 1.4.0），打 tag
-- MAJOR：MINOR 和 PATCH 归零，MAJOR +1（如 1.4.0 → 2.0.0），打 tag
-- 升版本后是否发 Release 由用户决定
+### Release 按版本级别自动决定
 
-### 询问排序原则
+| 版本变更 | 自动打 tag | 自动发 Release |
+|---------|-----------|---------------|
+| PATCH（1.4.0→1.4.1） | 是 | 否，内部修复不发版 |
+| MINOR（1.4.1→1.5.0） | 是 | 是，有新功能值得发布 |
+| MAJOR（1.5.0→2.0.0） | 是 | 是，重大变更必须发布 |
+
+- MINOR/MAJOR 发 Release 时，从 commit 历史自动生成 release notes（上次 tag 到现在的 commit）
+- 用 gh CLI 创建：`gh release create <tag> --title "<tag>" --notes "<notes>"`
+- gh CLI 不可用时按 [references/gh-cli-setup.md](references/gh-cli-setup.md) 引导
+- 私有仓库发 Release 后提醒一句"私有仓库 Release 只有协作者可见，要公开吗？"（不强制）
+
+### 手动操作
+- 用户说"发 release""发版"：基于最新 tag 发 Release（没有 tag 则先按 PATCH 打 tag）
+- 用户说"升个 minor 版""升大版本"：更新版本号文件中的版本号，提交后自动触发 tag + Release
+- 用户说"备注个版本号""打 tag"：按当前版本号打 tag（不发 Release）
+
+### 首次推送询问排序
 一次只问一个问题，按时间线自然触发，不堆叠：
 1. 首次推送 + 私有仓库 → 问"要不要公开？" → 公开则推荐 license
-2. 首次手动打 tag/发版 → 问"以后自动打 tag 吗？"
-3. 已问过的问题不重复问，答案记到 AGENTS.md
+2. 已问过的问题不重复问，答案记到 AGENTS.md
+3. tag 和 Release 不需要询问，按上述规则自动执行
 
 ## License
 
