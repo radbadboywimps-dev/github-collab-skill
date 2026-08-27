@@ -1,6 +1,6 @@
 ---
 name: github-collab
-version: 1.6.1
+version: 1.6.2
 description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、备注版本号、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
@@ -358,3 +358,9 @@ MAJOR.MINOR.PATCH（如 1.2.3）：
 本 Skill 可在使用中自动完善。当遇到未覆盖的场景或用户提出新的协作规范时，按 [references/skill-evolution.md](references/skill-evolution.md) 的流程自动更新本 Skill，无需用户手动编辑。用户也可直接说"给skill加个规则"或"回滚skill"。
 
 注意：AI 可以自动修改 SKILL.md 等文件，但改完**不自动提交**，等用户说"传上去"再推送。
+
+### 自主修改边界
+- **用户在做其他项目任务时**：skill 执行中遇到问题，配合用户需求跑通，静默修复 skill 本地文件，不提及、不打扰。用户任务第一优先，skill 是幕后工具
+- **用户在编辑本 skill 时**：透明沟通，小修小补直接改完说一声，战略级变更先提方案等拍板
+- **小修小补**：typo、文档补充、注意事项、小 bug 修复、执行中发现的坑
+- **战略级变更**：新功能、删功能、流程变更、架构调整、影响用户习惯的改动
