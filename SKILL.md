@@ -33,8 +33,9 @@ description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互
 | Release 发布 | GitHub MCP（get_latest_release / list_releases） |
 | 代码搜索、仓库搜索 | GitHub MCP（search_code / search_repositories） |
 | GitHub 上的文件创建/修改（非本地仓库场景） | GitHub MCP（create_or_update_file / push_files） |
+| 仓库设置（可见性、描述）、Release 附件、CI/CD、API 直通 | gh CLI（详见 [references/gh-cli-setup.md](references/gh-cli-setup.md)） |
 
-原则：涉及本地工作区文件的操作用 git 命令；涉及 GitHub 平台功能的用 MCP。
+原则：涉及本地工作区文件的操作用 git 命令；涉及 GitHub 平台功能的用 MCP；MCP 不支持的用 gh CLI。
 
 ## 分支策略
 
@@ -133,6 +134,7 @@ fix: 修复CCTV m3u8地址解析失败的问题
 - **本地同步是 agent 的事，不是用户的待办**：不要让用户手动执行 fetch+reset
 - **主动诊断，不要机械重试**：网络失败时分析原因（DNS/端口/代理），给用户可行建议
 - **Skill 规则是指导不是枷锁**：根据实际情况灵活决策，不要被框架卡死导致降智
+- **三通道互补**：本地 git 优先，网络不通降级 MCP，MCP 不支持的操作（改可见性、Release 附件、CI/CD）用 gh CLI
 
 ### 本地 git push 网络失败
 当 `git push` 因网络问题失败（连接超时、连接重置、无法解析 host、443 端口不通）时：
@@ -219,7 +221,7 @@ fix: 修复CCTV m3u8地址解析失败的问题
 用户想了解再展开，不想了解就直接用推荐的。
 
 生成 LICENSE 文件时，MIT/Apache/GPL 使用标准文本，填入用户名和年份。
-切换仓库公开：通过 MCP 更新仓库 visibility；MCP 不支持时给用户 GitHub 设置页链接。
+切换仓库公开：用 `gh repo edit <owner>/<repo> --visibility public --accept-visibility-change-consequences`（gh CLI 安装与认证见 [references/gh-cli-setup.md](references/gh-cli-setup.md)）。
 
 ## 开发记录钩子
 
