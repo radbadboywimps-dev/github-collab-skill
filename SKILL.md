@@ -1,6 +1,6 @@
 ---
 name: github-collab
-version: 1.5.0
+version: 1.6.0
 description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、备注版本号、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
@@ -10,6 +10,18 @@ description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互
 
 **只在用户明确要做 git/GitHub 操作时介入**（提交、推送、建仓库、分支、PR、发版、回退、同步等）。
 纯编码、调试、重构、写测试、读代码、技术讨论时**不触发、不检查、不打扰**。
+
+### 文件修改与 git 操作分离
+- AI 只改文件，**不自动提交**。用户说"改一下""加个功能""修 bug"时只动文件不碰 git
+- 用户说"提交""传上去""直接上传"时才执行 git 操作
+- 简单流程简化的是提交**之后**的步骤（不建分支不建 PR），不是跳过"等用户发话"
+- 追加 DEVLOG、更新 AGENTS.md 等文件改动也不自动提交，等下次用户说提交时一起带上
+
+### 轻量提醒
+- 上一轮对话执行过 git 操作，新一轮用户继续聊代码/改文件时，开头提一句："需要传 GitHub 随时说。"
+- 只提一次，一句话，不追问、不阻塞当前对话
+- 用户不回应或说"不需要" → 不再提
+- 用户说"传吧" → 走提交流程
 
 ## 启动检查（执行 git/GitHub 操作前）
 
@@ -61,11 +73,13 @@ description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互
 ### 简单流程（默认）
 - 直接在 main 上提交，不建分支、不建 PR
 - 适合：个人项目、小工具、vibe coding、快速迭代
+- 起点：用户说了"提交""传上去""直接上传"等
 - 步骤：静默安全检查 → `git add` → `git commit` → `git push`
 
 ### 完整流程
 - 从 main 建 feat/fix 分支，通过 PR 合并
 - 适合：多人协作、正式项目、大改动、开源项目
+- 起点：用户说了"走 PR""提 PR""走完整流程"等
 - 步骤：建分支 → 开发 → 提交前检查 → push → 建 PR → 自查 → 合并 → 清理分支
 
 ### 分支策略（仅完整流程）
@@ -335,9 +349,11 @@ MAJOR.MINOR.PATCH（如 1.2.3）：
 ```
 标签：decision / problem / milestone / idea / pitfall / note
 
-不强制记录，用户说不用就跳过。DEVLOG.md 提交到 GitHub（属于项目文档）。
+不强制记录，用户说不用就跳过。DEVLOG.md 追加后不自动提交，等下次用户说提交时一起推送到 GitHub。
 如果 dev-journal skill 可用，记录后提示用户可以用它做更详细的整理或内容生成。
 
 ## Skill 自扩展
 
 本 Skill 可在使用中自动完善。当遇到未覆盖的场景或用户提出新的协作规范时，按 [references/skill-evolution.md](references/skill-evolution.md) 的流程自动更新本 Skill，无需用户手动编辑。用户也可直接说"给skill加个规则"或"回滚skill"。
+
+注意：AI 可以自动修改 SKILL.md 等文件，但改完**不自动提交**，等用户说"传上去"再推送。
