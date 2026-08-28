@@ -1,6 +1,6 @@
 ---
 name: github-collab
-version: 1.6.2
+version: 1.7.0
 description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、备注版本号、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
@@ -30,6 +30,12 @@ description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互
    - 找到便携版 git 时，将其目录加入当前会话 PATH（不修改系统环境变量）
    - 找不到 git → 引导安装（Windows: winget 或便携版；macOS: `brew install git`；Linux: `apt/yum install git`）
    - Windows PowerShell 下设置 `$env:GIT_REDIRECT_STDERR = '2>&1'`，消除 git 进度信息导致的红色错误显示
+   - **检查 git 身份**：`git config user.name` 和 `git config user.email`，未配置时：
+     - 若 gh 已登录，自动设仓库级身份：`git config user.name "$(gh api user -q .login)"`、`git config user.email "<username>@users.noreply.github.com"`（用 noreply 邮箱保护隐私）
+     - gh 未登录则询问用户用户名和邮箱
+   - **检查 gh 版本兼容性**（用到 gh 时）：`gh --version` 解析主版本号
+     - gh < 2.25（如 Ubuntu 22.04 apt 自带的 2.4.0）：不支持 `--git-protocol` 参数，`--json` 字段用 `isPrivate` 而非 `visibility`；认证用 `gh auth login --hostname github.com --web --scopes repo`（不加 `--git-protocol`）
+     - 版本过旧导致功能不可用时，引导升级（见 [references/gh-cli-setup.md](references/gh-cli-setup.md)）
    - 检测结果在当前会话缓存，不重复检测
 1. 确定工作目录：用户指定的项目路径，或当前对话中正在操作的目录
 2. 检查是否为 git 仓库：
@@ -169,8 +175,10 @@ fix: 修复CCTV m3u8地址解析失败的问题
 2. 在本地项目目录 `git init`
 3. 根据语言/框架生成 .gitignore（Python/Node/Go/Java 等常见模板）
 4. 生成 AGENTS.md（按 [references/agents-template.md](references/agents-template.md)）
-5. 初始提交：`git add . && git commit -m "chore: 初始化项目"`
-6. 关联远程并推送：`git remote add origin <url> && git push -u origin main`
+5. 初始提交：`git add . && git commit -m "chore: 初始化项目"`（**必须先 commit 再推送**）
+6. 关联远程并推送：`git remote add origin <url> && gh auth setup-git && git push -u origin main`
+   - 用 `gh repo create <name> --private --source=. --push` 一步创建+推送时，也**必须先 commit**，否则报 "no commits found"
+   - 推送前确保已执行 `gh auth setup-git`（见启动检查），否则 HTTPS 推送会报认证错误
 7. **首次推送成功后，询问用户是否公开仓库**：
    - 告知仓库地址，说明当前为私有
    - 问："要不要公开？公开后任何人都能查看和使用你的代码，同时需要配置开源协议（license）。"
@@ -185,6 +193,35 @@ fix: 修复CCTV m3u8地址解析失败的问题
 - 发现误提交密钥：立即告知用户轮换密钥，再清理 git 历史
 - 仓库默认私有，用户明确要求才公开
 - 破坏性操作（force push、删除分支、重置历史）必须说明后果并经用户确认
+
+## 无 GUI / 沙箱环境认证
+在无显示器、无 D-Bus 的 Linux 容器或 SSH 环境中，`gh auth login --web` 尝试拉起浏览器会失败并输出大量 dbus 错误。按以下流程处理：
+1. **不要依赖沙箱内浏览器**。设备码（device code）本来就支持在任意设备输入，用户在自己电脑或手机上打开链接即可
+2. 后台启动认证，管道喂入回车跳过"Press Enter to open browser"，日志重定向到文件（过滤 dbus 噪声）：
+   ```bash
+   (echo "") | gh auth login --hostname github.com --web --scopes repo \
+     > /tmp/gh_login.log 2>&1 &
+   sleep 4
+   grep "one-time code" /tmp/gh_login.log   # 提取验证码，如 AB3A-1342
+   ```
+   - 旧版 gh（<2.25）不加 `--git-protocol`（该版本不支持）
+   - 也可绕过 `gh auth login`，直接调 GitHub OAuth Device Flow API，详见 [references/gh-cli-setup.md](references/gh-cli-setup.md) 的"认证"章节
+3. **直接在回复中给用户链接和验证码**（不依赖 `open_url_in_browser` 或 `interaction.request_action`）：
+   - 链接：`https://github.com/login/device`
+   - 验证码：`XXXX-XXXX`
+   - 说明："在任意浏览器打开，输入验证码，授权即可"
+   - 沙箱浏览器能打开就打开作为辅助，打不开不影响——`open_url_in_browser` 可能返回超时但页面实际已加载，用 `take_screenshot` 确认即可，不要因超时而中断
+4. **自动轮询等待**（5 秒间隔，最多 15 分钟=180 次）：
+   ```bash
+   for i in $(seq 1 180); do
+     gh auth status 2>/dev/null && break
+     sleep 5
+   done
+   ```
+5. 认证成功后执行 `gh auth setup-git`，然后继续原任务
+- 验证码过期（约15分钟）→ 重新生成一个，告知用户新码
+- `open_url_in_browser` 返回超时但 `take_screenshot` 显示页面已加载 → 以截图为准，继续流程
+- `interaction.request_action` 报"从未开启网页"时不阻塞，直接用文本给链接即可
 
 ## 故障降级与恢复
 
@@ -227,6 +264,15 @@ fix: 修复CCTV m3u8地址解析失败的问题
    - 如果发现本地有代理软件在运行，建议配置 git 代理：`git config --global http.proxy http://127.0.0.1:端口`
    - 如果完全没有代理，告知用户 GitHub 在国内访问不稳定，MCP 通道不受影响可继续使用
 
+### 旧版 gh 命令兼容
+Ubuntu 22.04 LTS 等系统 apt 自带 gh 2.4.0（2022年），部分新参数/字段不支持：
+| 用法 | 旧版兼容写法 |
+|------|-------------|
+| `gh auth login --git-protocol https` | `gh auth login`（不加该参数） |
+| `gh repo view --json visibility` | `gh repo view --json isPrivate` |
+| `gh repo create --push`（无commit时） | 先 `git commit` 再 `gh repo create --source=. --push` |
+- 不确定版本时先 `gh --version`，或直接用兼容写法（新旧版都支持）
+
 ### 认证失败
 当 git 操作返回 403/Authentication failed：
 1. 检查 credential helper：`git config --global credential.helper`
@@ -235,7 +281,8 @@ fix: 修复CCTV m3u8地址解析失败的问题
    - Linux：应为 `libsecret` 或 `store`
 2. 未配置则设置对应 helper
 3. 引导用户完成认证：GCM 会弹出浏览器 OAuth 授权；无 GUI 环境用 Personal Access Token
-4. 认证完成后重试；如果用户不想配置认证，直接用 MCP 完成上传，不阻塞任务
+4. 认证完成后执行 `gh auth setup-git`（配置 git credential helper，让 git push 自动使用 gh token，避免 "could not read Username" 错误）
+5. 认证完成后重试；如果用户不想配置认证，直接用 MCP 完成上传，不阻塞任务
 
 ### 命令执行注意事项
 - 判断 git 命令成功/失败只看 `$LASTEXITCODE -eq 0`（Windows）或 `$? -eq 0`（bash），不依赖输出内容或颜色

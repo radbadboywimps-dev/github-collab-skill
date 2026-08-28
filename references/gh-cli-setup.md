@@ -86,8 +86,9 @@ sudo apt update && sudo apt install gh
 
 ## 认证（OAuth Device Flow）
 
-**不要用 `gh auth login --web`**——它是交互式的，在 agent 环境中会卡住（等待 Enter 和浏览器回调）。
-直接走 GitHub OAuth Device Flow：
+### 方案 A：直接调 Device Flow API（最可控，推荐）
+`gh auth login --web` 直接运行会在 agent 环境中卡住（等待 Enter 和浏览器回调）。
+最可控的方式是直接走 GitHub OAuth Device Flow API：
 
 ### PowerShell 实现
 ```powershell
@@ -126,17 +127,33 @@ if ($token) {
 }
 ```
 
+### 方案 B：管道喂回车（更简单，适合无 GUI 沙箱）
+不想手写 HTTP 请求时，可以用管道跳过"Press Enter to open browser"提示，让 gh 后台轮询：
+```bash
+# 后台启动，日志写文件（沙箱里 dbus 错误无害，过滤即可）
+(echo "") | gh auth login --hostname github.com --web --scopes repo \
+  > /tmp/gh_login.log 2>&1 &
+sleep 4
+grep "one-time code" /tmp/gh_login.log   # 提取验证码给用户
+# 用户在任意浏览器打开 https://github.com/login/device 输入验证码后：
+for i in $(seq 1 180); do gh auth status 2>/dev/null && break; sleep 5; done
+```
+- 旧版 gh（<2.25，如 Ubuntu 22.04 apt 自带 2.4.0）不支持 `--git-protocol`，不要加该参数
+- gh 尝试拉起浏览器失败时输出的 dbus ERROR 不影响功能，从日志中 grep 验证码即可
+- **认证成功后必须执行 `gh auth setup-git`**，否则 git push 走 HTTPS 时仍会报 "could not read Username"
+
 ### 注意事项
 - 验证码有效期约 15 分钟，轮询间隔按返回的 `interval`（通常 5 秒）
 - token 存入系统 keyring（Windows Credential Manager / macOS Keychain / libsecret），agent 无法再次读取
 - scope 说明：`repo`（仓库读写）、`read:org`（组织读取）、`gist`（gist）、`workflow`（Actions）
 - 认证一次即可长期使用，除非手动 `gh auth logout` 或 token 过期
+- 认证成功后执行 `gh auth setup-git` 配置 credential helper（方案 A 用 `--with-token` 后同样需要）
 
 ## 常用命令
 
 ### 仓库管理
 ```bash
-gh repo view <owner>/<repo> --json visibility,url    # 查看仓库信息
+gh repo view <owner>/<repo> --json isPrivate,url     # 查看仓库信息（旧版gh用isPrivate，不用visibility）
 gh repo edit <owner>/<repo> --visibility public      # 公开仓库
 gh repo edit <owner>/<repo> --visibility private     # 私有仓库
 gh repo edit <owner>/<repo> --description "xxx"      # 改描述
