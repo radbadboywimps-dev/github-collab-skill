@@ -1,6 +1,6 @@
 ---
 name: github-collab
-version: 1.7.0
+version: 1.8.0
 description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互时触发。触发场景：提交代码、推送、拉取、建仓库、建分支、Pull Request、代码审查、合并、版本发布、打tag、release、Issue管理、git操作、回退、stash、冲突解决、clone、fork、初始化仓库。触发词：提交、推送、推上去、拉取、建仓库、建分支、提PR、合并、发版、release、打tag、备注版本号、issue、git、撤销、回退、stash、冲突、clone、fork、传到github、同步代码、上传代码、直接上传。不触发：纯编码、调试、重构、写测试、读代码、技术讨论等不涉及git/GitHub操作的开发行为；仅提及git/GitHub概念但不要求执行操作时（如"git是什么""提交订单""我用git管理版本"）也不触发。这些场景下本Skill保持沉默，不执行任何git命令或检查。
 ---
 
@@ -33,9 +33,12 @@ description: 标准化GitHub协作流程，仅在用户需要与git/GitHub交互
    - **检查 git 身份**：`git config user.name` 和 `git config user.email`，未配置时：
      - 若 gh 已登录，自动设仓库级身份：`git config user.name "$(gh api user -q .login)"`、`git config user.email "<username>@users.noreply.github.com"`（用 noreply 邮箱保护隐私）
      - gh 未登录则询问用户用户名和邮箱
-   - **检查 gh 版本兼容性**（用到 gh 时）：`gh --version` 解析主版本号
-     - gh < 2.25（如 Ubuntu 22.04 apt 自带的 2.4.0）：不支持 `--git-protocol` 参数，`--json` 字段用 `isPrivate` 而非 `visibility`；认证用 `gh auth login --hostname github.com --web --scopes repo`（不加 `--git-protocol`）
-     - 版本过旧导致功能不可用时，引导升级（见 [references/gh-cli-setup.md](references/gh-cli-setup.md)）
+   - **检查 gh 版本并按需升级**（用到 gh 时）：`gh --version` 解析版本号
+     - gh ≥ 2.25：直接使用，所有新参数可用
+     - gh < 2.25（如 Ubuntu 22.04 apt 自带的 2.4.0）：**先尝试自动升级**（见 [references/gh-cli-setup.md](references/gh-cli-setup.md) 的"升级"章节），告知用户"gh 版本过旧，正在升级"
+     - 升级成功 → 用新版正常执行
+     - 升级失败（无 sudo / 网络受限）→ 降级兼容：不加 `--git-protocol`，`--json` 用 `isPrivate` 而非 `visibility`，认证用 `gh auth login --hostname github.com --web --scopes repo`（不加 `--git-protocol`），并告知用户"gh 版本较旧，部分功能受限"
+     - **未安装 gh** → 不主动安装（懒加载原则），仅在 MCP 无法完成操作时按需安装最新版（见 gh-cli-setup.md）
    - 检测结果在当前会话缓存，不重复检测
 1. 确定工作目录：用户指定的项目路径，或当前对话中正在操作的目录
 2. 检查是否为 git 仓库：

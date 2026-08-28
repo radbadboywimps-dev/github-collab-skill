@@ -26,10 +26,11 @@ gh CLI 是 MCP 的兜底通道，用于 MCP 不支持的操作：
 2. 自动下载安装（对用户透明，无需手动操作）
    ├─ Windows：优先 winget，失败则下载便携版到 ~/gh-cli/ 并加入 PATH
    ├─ macOS：brew install gh
-   └─ Linux：apt/官方仓库安装
+   └─ Linux：优先官方 apt 仓库（最新版）；无 sudo 时用二进制安装到 ~/.local/bin（见下文）
    安装耗时约 10-30 秒，告知用户"正在安装 GitHub CLI..."
-
-3. gh auth status 检查是否已认证
+   ⚠️ 必须安装最新版（≥2.25），不要用发行版 apt 自带的旧版（如 Ubuntu 22.04 的 2.4.0）
+3. 安装后验证版本：`gh --version`，< 2.25 则执行升级（见"升级"章节）
+4. gh auth status 检查是否已认证
    ├─ 已认证 → 直接执行原操作
    └─ 未认证 → 步骤 4
 
@@ -74,15 +75,51 @@ if ($currentPath -notlike "*$binDir*") {
 $env:Path += ";$binDir"
 ```
 
-### macOS / Linux
+### macOS
 ```bash
-# macOS
 brew install gh
-# Linux (Debian/Ubuntu)
+```
+
+### Linux（有 sudo，推荐：官方 apt 仓库，版本最新）
+```bash
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
 sudo apt update && sudo apt install gh
 ```
+⚠️ 不要直接 `apt install gh`——发行版仓库版本极旧（Ubuntu 22.04 自带 2.4.0，2022年），缺少 `--git-protocol`、`--json visibility` 等参数。
+
+### Linux（无 sudo / 沙箱 / 容器：二进制安装到用户目录）
+```bash
+# 1. 获取最新版本号（用已认证的 gh api，避免匿名限流）
+LATEST=$(gh api repos/cli/cli/releases/latest --jq '.tag_name' 2>/dev/null || echo "v2.98.0")
+VER=${LATEST#v}
+# 2. 下载（直连慢时用镜像加速，见下方说明）
+mkdir -p ~/.local/gh-tmp && cd ~/.local/gh-tmp
+curl -fL "https://github.com/cli/cli/releases/download/${LATEST}/gh_${VER}_linux_amd64.tar.gz" -o gh.tar.gz \
+  || curl -fL "https://ghfast.top/https://github.com/cli/cli/releases/download/${LATEST}/gh_${VER}_linux_amd64.tar.gz" -o gh.tar.gz
+# 3. 安装到 ~/.local/bin
+tar xzf gh.tar.gz
+mkdir -p ~/.local/bin
+cp gh_${VER}_linux_amd64/bin/gh ~/.local/bin/gh && chmod +x ~/.local/bin/gh
+export PATH="$HOME/.local/bin:$PATH"
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+# 4. 验证
+gh --version
+# 5. 迁移认证（新版读同一个 ~/.config/gh/，认证自动继承）
+gh auth setup-git
+cd - && rm -rf ~/.local/gh-tmp
+```
+**GitHub 下载慢时用镜像加速**（沙箱/国内环境直连 GitHub release 常仅 10-30KB/s）：
+- 在下载 URL 前加 `https://ghfast.top/` 前缀，速度可达 500KB/s-1MB/s
+- 备选镜像：`https://gh-proxy.com/`、`https://mirror.ghproxy.com/`
+- 用 `curl -C - --retry 5` 支持断点续传和自动重试
+
+## 升级
+检测到 gh < 2.25 时执行升级，优先级：
+1. **有 sudo**：用官方 apt 仓库升级（`sudo apt update && sudo apt install gh`，需先添加官方源）
+2. **无 sudo / 沙箱**：用上方"二进制安装到用户目录"流程，新版装到 `~/.local/bin/`，PATH 优先于 `/usr/bin/`
+3. **升级失败**：降级到兼容模式（SKILL.md 启动检查中有说明），告知用户"gh 版本较旧，部分功能受限"
+升级后认证自动继承（同一份 `~/.config/gh/hosts.yml`），需重新执行 `gh auth setup-git`。
 
 ## 认证（OAuth Device Flow）
 
