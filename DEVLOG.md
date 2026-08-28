@@ -1,5 +1,18 @@
 # DEVLOG
 
+## 2026-08-28 [milestone] v1.7.0 沙箱环境认证兼容性修复 + gh升级至2.98.0
+
+- 沙箱环境（Ubuntu 22.04 + gh 2.4.0）实测发现6个问题，全部修复并发布 v1.7.0：
+  1. git 身份未配置导致 commit 失败 → 启动检查自动从 gh 获取用户名+noreply邮箱
+  2. gh 2.4.0 不支持 `--git-protocol` 和 `--json visibility` → 版本检测+兼容写法（isPrivate）
+  3. 认证后未执行 `gh auth setup-git`，git push 报 "could not read Username" → 认证成功后自动配置
+  4. 无GUI沙箱 `gh auth login --web` 输出大量dbus错误 → 新增标准流程：管道喂回车+grep验证码+直接给用户链接+5秒轮询
+  5. `open_url_in_browser` 超时假阴性 → 以 take_screenshot 为准，不中断流程
+  6. `gh repo create --push` 无commit时报错 → 明确先commit再推送的顺序
+- gh-cli-setup.md 补充方案B（管道喂回车），修正 --json visibility 为 isPrivate
+- 沙箱 gh 从 2.4.0 升级至 2.98.0（装到 ~/.local/bin，无sudo）；直连GitHub仅13KB/s，通过 ghfast.top 镜像跑满900KB/s
+- v1.7.0 在 gh 2.4.0（兼容路径）和 gh 2.98.0（正常路径）上均验证通过
+
 ## 2026-08-27 [decision] 收窄Skill触发边界，不在纯编码时打扰用户
 
 - 原 description 包含"开发、写代码、改代码、bug"等泛词，导致用户在 vibe coding 时误触发，自动跑 git status/pull 打扰开发节奏
